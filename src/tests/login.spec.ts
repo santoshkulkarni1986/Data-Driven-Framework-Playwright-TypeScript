@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { getEnv } from '../helper/env/env';
-import { LoginPage } from '../pages/LoginPage';
+import { LoginPage } from '../pages/loginPage';
 
 getEnv();
 
