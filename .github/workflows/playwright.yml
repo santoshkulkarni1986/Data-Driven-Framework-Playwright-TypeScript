@@ -22,7 +22,7 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npm run test
 
     # Upload Playwright report
     - uses: actions/upload-artifact@v4
@@ -39,3 +39,11 @@ jobs:
         name: ExecutionLogs
         path: ExecutionLogs/
         retention-days: 30
+ # Upload MonoCart folder
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: FinalReports
+        path: FinalReports/
+        retention-days: 30
+        
