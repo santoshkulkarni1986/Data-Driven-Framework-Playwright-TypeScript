@@ -1,5 +1,3 @@
-# GitHub Actions workflow to run Playwright tests
-# Trigger: on push or pull request to main or master branches
 name: Playwright Tests
 
 on:
@@ -10,36 +8,31 @@ on:
 
 jobs:
   test:
-    # Maximum job runtime
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout repository
       - uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js environment
+      # Step 2: Setup Node.js
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
-      # Step 3: Install project dependencies from package-lock.json
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Step 4: Compile TypeScript files (src and reporters)
-      - name: Compile TypeScript
-        run: npx tsc
-
-      # Step 5: Install Playwright browsers and dependencies
+      # Step 4: Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Step 6: Run Playwright tests
+      # Step 5: Run Playwright tests
       - name: Run Playwright tests
-        run: npm run test
+        run: npx cross-env ENV=test npx playwright test
 
-      # Step 7: Upload Playwright HTML report
+      # Step 6: Upload Playwright HTML report
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -47,7 +40,7 @@ jobs:
           path: FinalReports/playwright-report/
           retention-days: 30
 
-      # Step 8: Upload execution logs
+      # Step 7: Upload execution logs
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -55,26 +48,26 @@ jobs:
           path: FinalReports/logs/
           retention-days: 30
 
-      # Step 9: Upload MonoCart report folder
+      # Step 8: Upload MonoCart report folder
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: FinalReports
-          path: FinalReports/monocart-report
+          name: MonoCartReports
+          path: FinalReports/monocart-report/
           retention-days: 30
 
-      # Step 10: Upload PDF reports
+      # Step 9: Upload PDF reports
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: PDFReports
-          path: FinalReports/reports/pdf
+          path: FinalReports/reports/pdf/
           retention-days: 30
 
-      # Step 11: Upload Excel reports
+      # Step 10: Upload Excel reports
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: ExcelReports
-          path: FinalReports/reports/ExcelReports
+          path: FinalReports/reports/ExcelReports/
           retention-days: 30
