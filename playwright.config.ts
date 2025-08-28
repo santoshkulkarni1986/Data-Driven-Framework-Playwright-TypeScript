@@ -1,11 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-import { getEnv } from './src/helper/env/env';
+import { getEnv } from './src/helper/env/env'; // adjust if needed
 
+// Load environment variables
 getEnv();
 
-// Ensure report folders exist before tests run
+// Ensure report folders exist
 const reportFolders = [
   'FinalReports/playwright-report',
   'FinalReports/reports/pdf',
@@ -29,41 +30,19 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['list'],
-    [
-      'html',
-      {
-        open: 'never',
-        outputFolder: 'FinalReports/playwright-report',
-        title: 'Santosh Kulkarni POC',
-      },
-    ],
+    ['html', { open: 'never', outputFolder: 'FinalReports/playwright-report' }],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
-    // ✅ Use compiled JS for CI
-   [
-  'ts-node/register',
-  {
-    require: './src/Utility/PdfReporter.ts',
-    outputFolder: 'FinalReports/reports/pdf'
-  }
-],
-    [
-      'monocart-reporter',
-      {
-        name: 'Playwright Custom Report',
-        outputFile: './FinalReports/monocart-report/index.html',
-      },
-    ],
+    ['./dist/Utility/PdfReporter.js', { outputDir: 'FinalReports/reports/pdf' }], // compiled JS
+    ['monocart-reporter', { outputFile: './FinalReports/monocart-report/index.html' }],
     ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
-
   use: {
     baseURL: process.env.AMSUITEBASEURL || 'https://default-url.com',
     trace: 'on',
     screenshot: 'on',
     video: 'on',
   },
-
   projects: [
     {
       name: 'chromium',
