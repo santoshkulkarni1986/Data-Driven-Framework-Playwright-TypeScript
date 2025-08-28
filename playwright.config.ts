@@ -33,7 +33,7 @@ export default defineConfig({
     ['html', { open: 'never', outputFolder: 'FinalReports/playwright-report' }],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
-  //  ['./dist/Utility/PdfReporter.js', { outputDir: 'FinalReports/reports/pdf' }], // compiled JS
+   ['./dist/Utility/PdfReporter.js', { outputDir: 'FinalReports/reports/pdf' }], // compiled JS
     ['monocart-reporter', { outputFile: './FinalReports/monocart-report/index.html' }],
     ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
