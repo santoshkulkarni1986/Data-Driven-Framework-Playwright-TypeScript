@@ -40,7 +40,13 @@ export default defineConfig({
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
     // ✅ Use compiled JS for CI
-    ['./dist/Utility/PdfReporter.js', { outputFolder: 'FinalReports/reports/pdf' }],
+   [
+  'ts-node/register',
+  {
+    require: './src/Utility/PdfReporter.ts',
+    outputFolder: 'FinalReports/reports/pdf'
+  }
+],
     [
       'monocart-reporter',
       {
