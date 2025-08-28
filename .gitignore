@@ -9,3 +9,6 @@ node_modules/
 /test-results/videos/
 test-results/traces/
 test-results/screenshots/
+/FinalReports/
+/dist/
+/test-results/
