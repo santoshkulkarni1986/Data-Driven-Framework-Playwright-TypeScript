@@ -8,8 +8,8 @@ import logger from './logger';
 
 const folders = [
   'FinalReports/reports/pdf',
-  'FinalReports/reports/word',
   'FinalReports/monocart-report',
+  'FinalReports/ExcelReports',
 ];
 
 folders.forEach((folder) => {
