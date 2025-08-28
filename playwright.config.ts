@@ -39,7 +39,7 @@ export default defineConfig({
     // Compiled JS reporters (dist folder)
 
     [
-      'dist/Utility/PdfReporter.js',
+      './dist/Utility/PdfReporter.js',
       { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' },
     ],
 

@@ -1,30 +1,45 @@
+# GitHub Actions workflow to run Playwright tests
+# Trigger: on push or pull request to main or master branches
 name: Playwright Tests
+
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+
 jobs:
   test:
+    # Maximum job runtime
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v4
 
+      # Step 2: Setup Node.js environment
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
+      # Step 3: Install project dependencies from package-lock.json
       - name: Install dependencies
         run: npm ci
 
+      # Step 4: Compile TypeScript files (src and reporters)
+      - name: Compile TypeScript
+        run: npx tsc
+
+      # Step 5: Install Playwright browsers and dependencies
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      # Step 6: Run Playwright tests
       - name: Run Playwright tests
         run: npm run test
 
-      # Upload Playwright report
+      # Step 7: Upload Playwright HTML report
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -32,31 +47,34 @@ jobs:
           path: FinalReports/playwright-report/
           retention-days: 30
 
-      # Upload ExecutionLogs folder
+      # Step 8: Upload execution logs
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: ExecutionLogs
           path: FinalReports/logs/
           retention-days: 30
-      # Upload MonoCart folder
+
+      # Step 9: Upload MonoCart report folder
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: FinalReports
           path: FinalReports/monocart-report
           retention-days: 30
-      # Upload PDF folder
+
+      # Step 10: Upload PDF reports
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: PDFReports
           path: FinalReports/reports/pdf
           retention-days: 30
-      # Upload Excel folder
+
+      # Step 11: Upload Excel reports
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: PDFReports
+          name: ExcelReports
           path: FinalReports/reports/ExcelReports
           retention-days: 30

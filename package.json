@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "pretest": "eslint ./src --ext .ts,.tsx --fix && tsc src/Utility/pdfReporter.ts --outDir dist/Utility",
+    "pretest": "eslint ./src --ext .ts,.tsx --fix && ts-node ./src/Utility/setupReports.ts && tsc --noEmit",
     "test": "cross-env ENV=test npx playwright test GPA_Dwelling_Basic_seperated_parallel.spec.ts",
     "format": "prettier --write './src/**/*.{ts,tsx,json,css,md}'",
     "posttest": "echo 'Reports generated successfully!'"
