@@ -1,14 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-import { getEnv } from './src/helper/env/env'; // adjust path as per your project
-const isCI = !!process.env.CI; // GitHub Actions sets CI=true
+import { getEnv } from './src/helper/env/env';
 
 getEnv();
+
 // Ensure report folders exist before tests run
 const reportFolders = [
+  'FinalReports/playwright-report',
   'FinalReports/reports/pdf',
   'FinalReports/monocart-report',
+  'FinalReports/test-results',
 ];
 
 reportFolders.forEach((folder) => {
@@ -37,8 +39,8 @@ export default defineConfig({
     ],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
-    // Compiled JS reporters (dist folder)
-     ['./dist/Utility/PdfReporter.js', { outputFolder: 'FinalReports/reports/pdf' }],
+    // ✅ Use compiled JS for CI
+    ['./dist/Utility/PdfReporter.js', { outputFolder: 'FinalReports/reports/pdf' }],
     [
       'monocart-reporter',
       {
@@ -46,7 +48,6 @@ export default defineConfig({
         outputFile: './FinalReports/monocart-report/index.html',
       },
     ],
-
     ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
 
@@ -62,12 +63,9 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], headless: true },
     },
-  {
-    name: 'firefox',
+    {
+      name: 'firefox',
       use: { ...devices['Desktop Firefox'], headless: true },
     },
-    
-    // Add more projects if needed
   ],
-  }
-);
+});

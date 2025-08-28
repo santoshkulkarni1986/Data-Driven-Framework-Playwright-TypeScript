@@ -12,31 +12,35 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # 1️ Checkout repository
+      # 1️⃣ Checkout repository
       - uses: actions/checkout@v4
 
-      # 2️ Setup Node.js
+      # 2️⃣ Setup Node.js
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3️ Install dependencies
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 4️ Compile TypeScript (build reporters and src)
+      # 4️⃣ Compile TypeScript (build src and reporters)
       - name: Compile TypeScript
         run: npx tsc --project tsconfig.json
 
-      # 5️ Install Playwright browsers
+      # 5️⃣ Ensure dist/Utility folder exists
+      - name: Ensure dist folder
+        run: mkdir -p dist/Utility
+
+      # 6️⃣ Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # 6️ Run Playwright tests
+      # 7️⃣ Run Playwright tests
       - name: Run Playwright Tests
         run: npm test
 
-      # 7️ Upload HTML Report
+      # 8️⃣ Upload HTML Report
       - name: Upload HTML Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -45,7 +49,7 @@ jobs:
           path: FinalReports/playwright-report/
           retention-days: 30
 
-      # 8️ Upload PDF Reports
+      # 9️⃣ Upload PDF Reports
       - name: Upload PDF Reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -54,7 +58,7 @@ jobs:
           path: FinalReports/reports/pdf/
           retention-days: 30
 
-      # 9️ Upload Word Reports
+      # 🔟 Upload Excel/Word Reports
       - name: Upload Excel Reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,7 +67,7 @@ jobs:
           path: FinalReports/reports/ExcelReports/
           retention-days: 30
 
-      # 10 Upload Monocart Report
+      # 1️⃣1️⃣ Upload Monocart Report
       - name: Upload Monocart Report
         if: always()
         uses: actions/upload-artifact@v4
