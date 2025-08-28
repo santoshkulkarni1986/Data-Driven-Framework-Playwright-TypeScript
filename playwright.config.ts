@@ -38,8 +38,9 @@ export default defineConfig({
     ['@estruyf/github-actions-reporter'],
     // Compiled JS reporters (dist folder)
 
-     ['./src/Utility/PdfReporter.ts', { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' }],
-
+    ['./dist/Utility/PdfReporter.js', { 
+      outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' 
+  }],
 
     [
       'monocart-reporter',

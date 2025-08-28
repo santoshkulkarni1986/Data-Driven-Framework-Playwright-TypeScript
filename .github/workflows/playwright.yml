@@ -24,15 +24,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Step 4: Install Playwright browsers
+      # Step 4: Compile TypeScript reporters
+      - name: Compile TypeScript
+        run: npx tsc
+
+      # Step 5: Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Step 5: Run Playwright tests
+      # Step 6: Run Playwright tests
       - name: Run Playwright tests
-        run: npx cross-env ENV=test npx playwright test
+        run: npm run test
 
-      # Step 6: Upload Playwright HTML report
+      # Step 7: Upload Playwright HTML report
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -40,7 +44,7 @@ jobs:
           path: FinalReports/playwright-report/
           retention-days: 30
 
-      # Step 7: Upload execution logs
+      # Step 8: Upload execution logs
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -48,7 +52,7 @@ jobs:
           path: FinalReports/logs/
           retention-days: 30
 
-      # Step 8: Upload MonoCart report folder
+      # Step 9: Upload MonoCart report folder
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -56,7 +60,7 @@ jobs:
           path: FinalReports/monocart-report/
           retention-days: 30
 
-      # Step 9: Upload PDF reports
+      # Step 10: Upload PDF reports
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -64,7 +68,7 @@ jobs:
           path: FinalReports/reports/pdf/
           retention-days: 30
 
-      # Step 10: Upload Excel reports
+      # Step 11: Upload Excel reports
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
