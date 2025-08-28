@@ -2,76 +2,72 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   pull_request:
-    branches: [main, master]
+    branches: [ main, master ]
 
 jobs:
   test:
-    timeout-minutes: 60
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
-      # Step 1: Checkout repository
+      # 1️ Checkout repository
       - uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js
+      # 2️ Setup Node.js
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20
 
-      # Step 3: Install dependencies
+      # 3️ Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Step 4: Compile TypeScript reporters
+      # 4️ Compile TypeScript (build reporters and src)
       - name: Compile TypeScript
         run: npx tsc
 
-      # Step 5: Install Playwright browsers
+      # 5️ Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Step 6: Run Playwright tests
-      - name: Run Playwright tests
-        run: npm run test
+      # 6️ Run Playwright tests
+      - name: Run Playwright Tests
+        run: npm test
 
-      # Step 7: Upload Playwright HTML report
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+      # 7️ Upload HTML Report
+      - name: Upload HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-html-report
           path: FinalReports/playwright-report/
           retention-days: 30
 
-      # Step 8: Upload execution logs
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+      # 8️ Upload PDF Reports
+      - name: Upload PDF Reports
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: ExecutionLogs
-          path: FinalReports/logs/
-          retention-days: 30
-
-      # Step 9: Upload MonoCart report folder
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: MonoCartReports
-          path: FinalReports/monocart-report/
-          retention-days: 30
-
-      # Step 10: Upload PDF reports
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: PDFReports
+          name: pdf-reports
           path: FinalReports/reports/pdf/
           retention-days: 30
 
-      # Step 11: Upload Excel reports
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+      # 9️ Upload Word Reports
+      - name: Upload Excel Reports
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: ExcelReports
+          name: word-reports
           path: FinalReports/reports/ExcelReports/
+          retention-days: 30
+
+      # 10 Upload Monocart Report
+      - name: Upload Monocart Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monocart-report
+          path: FinalReports/monocart-report/
           retention-days: 30
