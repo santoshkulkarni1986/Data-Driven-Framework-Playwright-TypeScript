@@ -28,7 +28,11 @@ jobs:
       - name: Compile TypeScript
         run: npx tsc --project tsconfig.json
 
-      # 5️⃣ Ensure dist/Utility folder exists
+      # 4️⃣a List compiled files to verify dist folder
+      - name: List compiled files
+        run: ls -R dist/Utility
+
+      # 5️⃣ Ensure dist/Utility folder exists (optional safety)
       - name: Ensure dist folder
         run: mkdir -p dist/Utility
 
