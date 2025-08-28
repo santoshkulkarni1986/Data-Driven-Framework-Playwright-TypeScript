@@ -13,12 +13,7 @@ import {
   selectByText,
   selectByValue,
 } from '../Utility/action-utils';
-import {
-  BIG_TIMEOUT,
-  MAX_TIMEOUT,
-  STANDARD_TIMEOUT,
-  TIMEOUT_4_SECONDS,
-} from '../Utility/timeout-constants';
+import { MAX_TIMEOUT, STANDARD_TIMEOUT } from '../Utility/timeout-constants';
 import {
   captureAndAttach,
   getFullStateName,
@@ -27,8 +22,6 @@ import {
 import { AMSuite_GPAURL } from '../Utility/url-constansts';
 import { isElementVisible } from '../Utility/element-utils';
 import fs from 'fs';
-import path from 'path';
-import { log } from 'console';
 import logger from '../Utility/logger';
 import { getPage } from '../Utility/page-utils';
 
@@ -521,6 +514,206 @@ export class AccountPage {
         `Failed to fetch submission number: ${(error as Error).message}`,
       );
       throw new Error('Submission number could not be retrieved');
+    }
+  }
+
+  /**
+   * Enters producer code
+   * @param page Playwright Page
+   */
+  public async EnterProducercode(page: Page) {
+    try {
+      logger.info('Starting EnterProducercode method');
+
+      logger.info('Clicking on Producer Code input field');
+      await click(this.producerCode());
+      logger.info('Producer Code input field clicked successfully');
+
+      logger.info('Clearing and entering producer code: 999006');
+      await this.producerCode().press('Home');
+      await fill(this.producerCode(), '999006');
+      logger.info('Producer code entered successfully');
+
+      logger.info('Clicking Search Producer button');
+      await click(this.searchProducerBtn());
+      logger.info('Search Producer button clicked successfully');
+
+      logger.info('Scrolling into view Next button');
+      await this.nextBtn().first().scrollIntoViewIfNeeded();
+      logger.info('Successfully scrolled to Next button');
+
+      logger.info('Taking screenshot of Next button before clicking');
+      await this.nextBtn()
+        .first()
+        .screenshot({ path: 'reports/screenshots/nextBtn.png' });
+      logger.info('Screenshot taken successfully');
+
+      logger.info('Clicking Next button');
+      await this.nextBtn().first().click({ force: true });
+      logger.info('Next button clicked successfully');
+
+      logger.info('Successfully completed EnterProducercode method ✅');
+    } catch (error: any) {
+      logger.error(` Error in EnterProducercode: ${error.message}`);
+      throw error; // rethrow so test fails and can capture screenshot
+    }
+  }
+
+  /**
+   * Selects product type and policy type and clicks next
+   * @returns Promise<void>
+   */
+  public async selectProductType(): Promise<void> {
+    try {
+      const productCode1 = 'Homeowners';
+      const policyType1 = 'DwellingBasic';
+      logger.info('Selecting product type and policy type...');
+      logger.info('Scrolling into view: Product Code dropdown');
+      await this.policyType().scrollIntoViewIfNeeded();
+      logger.info('Scrolled into view: Policy Type dropdown');
+      logger.info('Selecting Product Code: Homeowners');
+      await selectByValue(this.productCode(), productCode1);
+      logger.info('Selected Product Code: Homeowners');
+      logger.info('Selecting Policy Type: DwellingBasic');
+      await selectByValue(this.policyType(), policyType1);
+      logger.info('Selected Policy Type: DwellingBasic');
+      logger.info('Scrolling into view: Next button');
+      await this.nextBtn().screenshot();
+      logger.info('Captured screenshot before clicking Next');
+      logger.info('Clicking on the Next button');
+      await click(this.nextBtn());
+      logger.info('Clicked Next button successfully.');
+    } catch (error) {
+      logger.error(
+        `Error in selectProductType: ${error instanceof Error ? error.message : error}`,
+      );
+      throw error; // rethrow so test fails and report captures it
+    }
+  }
+
+  /**
+   * Verifies if Dwelling Basic account is created
+   * @returns Promise<void>
+   */
+  public async isAccountCreated(): Promise<void> {
+    try {
+      logger.info('Verifying Dwelling Basic account creation...');
+
+      await expect(getPage().getByText('Dwelling Basic - Quote')).toBeVisible();
+      logger.info('Verified: Dwelling Basic - Quote text is visible');
+
+      await expect(getPage().getByText('Quote has been saved.')).toBeVisible();
+      logger.info('Verified: Quote has been saved message is visible');
+
+      logger.info('Dwelling Basic account created successfully.');
+    } catch (error) {
+      logger.error(
+        `Error in isAccountCreated: ${error instanceof Error ? error.message : error}`,
+      );
+      await getPage().screenshot({
+        path: `screenshots/isAccountCreated-error.png`,
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Verifies if Dwelling Special account is created
+   * @returns Promise<void>
+   */
+  public async isDSAccountCreated(): Promise<void> {
+    try {
+      logger.info('Verifying Dwelling Special account creation...');
+
+      await expect(
+        getPage().getByText('Dwelling Special - Quote'),
+      ).toBeVisible();
+      logger.info('Verified: Dwelling Special - Quote text is visible');
+
+      await expect(getPage().getByText('Quote has been saved.')).toBeVisible();
+      logger.info('Verified: Quote has been saved message is visible');
+
+      logger.info('Dwelling Special account created successfully.');
+    } catch (error) {
+      logger.error(
+        `Error in isDSAccountCreated: ${error instanceof Error ? error.message : error}`,
+      );
+      await getPage().screenshot({
+        path: `screenshots/isDSAccountCreated-error.png`,
+      });
+      throw error;
+    }
+  }
+  /**
+   * Clicks nexton producer code
+   */
+  public async ClickNextonProducerCode() {
+    try {
+      logger.info('Attempting to click Producer Code Next button...');
+      await click(this.producerCodeNext());
+      logger.info('Successfully clicked Producer Code Next button.');
+    } catch (error) {
+      logger.error(
+        `Failed to click Producer Code Next button. Error: ${(error as Error).message}`,
+      );
+      throw error; // rethrow so test fails
+    }
+  }
+
+  /**
+   * Enters account details on the form
+   * @param page
+   * @param testInfo
+   * @param DOB
+   * @param phonetype
+   * @param PhoneNumber
+   * @param middleName
+   * @param ssn
+   * @param Customer_Suffix
+   */
+  public async enterAccountDetailsForAccountCreation(
+    page: Page,
+    testInfo: TestInfo,
+    DOB: any,
+    phonetype: string,
+    PhoneNumber: string,
+    StreetAddress1: string,
+  ) {
+    try {
+      logger.info(
+        `Entering account details: DOB=${DOB}, PhoneType=${phonetype}, PhoneNumber=${PhoneNumber}, StreetAddress1=${StreetAddress1}`,
+      );
+
+      // DOB
+      const formattedDate = formatToMMDDYYYY(DOB);
+      logger.info(`Filling date of birth: ${formattedDate}`);
+      await fill(this.dob(), formattedDate);
+      logger.info(`Successfully filled date of birth`);
+
+      // Phone type & number
+      logger.info(`Selecting phone type: ${phonetype}`);
+      await selectByText(this.phoneType(), phonetype);
+      logger.info(`Successfully selected phone type`);
+      logger.info(`Filling phone number: ${PhoneNumber}`);
+      await fill(this.phoneNumber(), PhoneNumber);
+      logger.info(`Successfully filled phone number`);
+
+      logger.info(`Scrolling to Address Line 1 field`);
+      await this.addressLine1().scrollIntoViewIfNeeded();
+      logger.info(`Successfully scrolled to Address Line 1 field`);
+      logger.info(`Filling Address Line 1: ${StreetAddress1}`);
+      await fill(this.addressLine1(), StreetAddress1);
+      logger.info(`Successfully filled Address Line 1`);
+
+      // Capture screenshot
+      await captureAndAttach(page, testInfo, 'Enter account details');
+      logger.info(`Account details entered successfully`);
+    } catch (error) {
+      logger.error(
+        `Error while entering account details: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      await captureAndAttach(page, testInfo, 'Error_EnterAccountDetails');
+      throw error; // re-throw to fail the test
     }
   }
 }

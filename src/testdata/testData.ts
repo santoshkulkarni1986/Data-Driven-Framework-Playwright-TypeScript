@@ -1,16 +1,7 @@
 import { Page, TestInfo } from '@playwright/test';
-import {
-  Document,
-  Packer,
-  Paragraph,
-  Media,
-  Table,
-  TableRow,
-  TableCell,
-  HeadingLevel,
-} from 'docx';
 import path from 'path';
 import fs from 'fs';
+import logger from '../Utility/logger';
 
 export const LoginCredentials = {
   username: 'autotester',
@@ -222,7 +213,7 @@ export async function captureAndAttach(
     contentType: 'image/png',
   });
 
-  console.log(`📸 Screenshot saved: ${screenshotPath}`);
+  logger.info(`📸 Screenshot saved: ${screenshotPath}`);
 }
 
 // Optional: Keep older version if needed

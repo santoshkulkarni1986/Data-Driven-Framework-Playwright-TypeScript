@@ -1,6 +1,7 @@
 import * as xlsx from 'xlsx';
 import * as path from 'path';
 import ExcelJS from 'exceljs';
+import logger from './logger';
 
 export function readExcelfile(filepath: string, sheetName: string): any[] {
   let data: any[] = [];
@@ -11,7 +12,7 @@ export function readExcelfile(filepath: string, sheetName: string): any[] {
     const sheet = workbook.Sheets[sheetName];
     data = xlsx.utils.sheet_to_json(sheet, { raw: false });
   } catch (error) {
-    console.log('Failed to read Excel file:', error);
+    logger.error('Failed to read Excel file:', error);
   }
   return data;
 }
@@ -82,7 +83,7 @@ export async function writeTestResultsToExcel(
 
     await workbook.xlsx.writeFile(filePath);
   } catch (error) {
-    console.log('Failed to write Excel file:', error);
+    logger.error('Failed to write Excel file:', error);
   }
 }
 
@@ -134,7 +135,7 @@ export async function appendTestResultsToExcel(
     // Write the updated workbook back to file
     xlsx.writeFile(workbook, 'example.xlsx');
   } catch (error) {
-    console.log('Failed to write Excel file:', error);
+    logger.error('Failed to write Excel file:', error);
   }
 }
 

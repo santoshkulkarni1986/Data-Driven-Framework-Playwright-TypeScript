@@ -2,11 +2,6 @@ import { TestInfo, Page } from '@playwright/test';
 import { getLocator, getLocatorByRole } from '../Utility/locator-utils';
 import { click, fill, selectByText } from '../Utility/action-utils';
 import { captureAndAttach } from '../testdata/testData';
-import {
-  TIMEOUT_4_SECONDS,
-  TIMEOUT_8_SECONDS,
-} from '../Utility/timeout-constants';
-import { getPage } from '../Utility/page-utils';
 import logger from '../Utility/logger';
 
 export class PolicyDetailsPage {

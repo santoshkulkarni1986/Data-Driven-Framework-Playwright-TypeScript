@@ -14,6 +14,7 @@ import {
 import { getAllLocators, getLocator } from './locator-utils';
 import { INSTANT_TIMEOUT, SMALL_TIMEOUT } from './timeout-constants';
 import { waitForPageLoadState } from './action-utils';
+import logger from '../Utility/logger';
 
 /**
  * 1. Retreiving Data: Use these functions to retrieve text, values, and counts from web elements.
@@ -114,7 +115,7 @@ export async function getURL(
     await waitForPageLoadState(options);
     return getPage().url();
   } catch (error) {
-    console.log(
+    logger.info(
       `getURL- ${error instanceof Error ? error.message : String(error)}`,
     );
     return '';
@@ -137,7 +138,7 @@ export async function getLocatorCount(
       return (await getAllLocators(input)).length;
     }
   } catch (error) {
-    console.log(
+    logger.info(
       `getLocatorCount- ${
         error instanceof Error ? error.message : String(error)
       }`,
@@ -168,7 +169,7 @@ export async function isElementAttached(
     await locator.waitFor({ state: 'attached', timeout: timeoutInMs });
     return true;
   } catch (error) {
-    console.log(
+    logger.info(
       `isElementAttached- ${
         error instanceof Error ? error.message : String(error)
       }`,
@@ -198,7 +199,7 @@ export async function isElementVisible(
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
   } catch (error) {
-    console.log(
+    logger.info(
       `isElementVisible- ${
         error instanceof Error ? error.message : String(error)
       }`,
@@ -228,7 +229,7 @@ export async function isElementHidden(
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
   } catch (error) {
-    console.log(
+    logger.info(
       `isElementHidden- ${
         error instanceof Error ? error.message : String(error)
       }`,
@@ -252,7 +253,7 @@ export async function isElementChecked(
       return await getLocator(input).isChecked(options);
     }
   } catch (error) {
-    console.log(
+    logger.info(
       `isElementChecked- ${
         error instanceof Error ? error.message : String(error)
       }`,

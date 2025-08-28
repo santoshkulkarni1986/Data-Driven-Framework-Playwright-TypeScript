@@ -11,63 +11,82 @@ import { getEnv } from '../helper/env/env';
 import * as fs from 'fs';
 
 getEnv();
+
+// Paths
 const excelPath = path.join(
   __dirname,
   '..',
   'testdata',
   'Dwelling_Basic_GPA_Issuance_Test_Generator_V3.1_new.xlsm',
 );
+
 const excelDir = path.join(
   process.cwd(),
   'FinalReports',
   'reports',
   'ExcelReports',
 );
+if (!fs.existsSync(excelDir)) fs.mkdirSync(excelDir, { recursive: true });
 
-// Ensure folder exists
-if (!fs.existsSync(excelDir)) {
-  fs.mkdirSync(excelDir, { recursive: true });
-}
-
-// Updated path for Excel result file
 const excelResultPath = path.join(excelDir, 'DWB-Result.xlsx');
 
-const AccountDetails = readExcelfile(excelPath, 'Account_Creation');
-const PolicyDetailsrecords = readExcelfile(excelPath, 'Policy_Details');
-const SummaryRecord = readExcelfile(excelPath, 'Summary');
+// Read all records from Excel
+const AccountDetailsAll = readExcelfile(excelPath, 'Account_Creation');
+const PolicyDetailsAll = readExcelfile(excelPath, 'Policy_Details');
+const SummaryRecordAll = readExcelfile(excelPath, 'Summary');
 
+// Write results after all tests
 test.afterAll(async () => {
   const now = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 4);
   const filename = `DwellingBasicGPA_${now}`;
   await writeTestResultsToExcel(excelResultPath, filename, results);
 });
 
+// Global variables
 let acc_created: string = '##';
 let submissionNumber: string = '##';
 let policy_number: string = '##';
 let UWI_Description: string[] = [];
 
 test.describe('GPA DWB Policy Creation Test', () => {
-  test('Login once and create GPA policies', async ({ page }, testInfo) => {
+  test('Login once and create GPA policies', async ({
+    page,
+    browserName,
+  }, testInfo) => {
     test.setTimeout(1000 * 60 * 30); // 30 min
     page.setDefaultTimeout(1000 * 60 * 10); // 10 min
+
+    // Step 0: Split records per browser
+    let AccountDetails: any[] = [];
+    let PolicyDetailsrecords: any[] = [];
+    let SummaryRecord: any[] = [];
+
+    if (browserName === 'chromium') {
+      AccountDetails = AccountDetailsAll.slice(0, 2);
+      PolicyDetailsrecords = PolicyDetailsAll.slice(0, 2);
+      SummaryRecord = SummaryRecordAll.slice(0, 2);
+    } else if (browserName === 'firefox') {
+      AccountDetails = AccountDetailsAll.slice(2, 4);
+      PolicyDetailsrecords = PolicyDetailsAll.slice(2, 4);
+      SummaryRecord = SummaryRecordAll.slice(2, 4);
+    }
+
+    // Step 1: Login once
     await test.step('Login to AMSuite', async () => {
-      const LoginPageTest = new LoginPage(page);
-      let userName = process.env.USERNAME!;
-      let passWord = process.env.PASSWORD!;
-      await LoginPageTest.navigateToLoginPage();
-      await LoginPageTest.clickPolicyLoginLink();
-      await LoginPageTest.enterUsername(userName);
-      await LoginPageTest.clickNextButton();
-      await LoginPageTest.enterPassword(passWord);
-      await LoginPageTest.clickLoginButton();
-      await LoginPageTest.verifyLoginSuccess();
-      //await LoginPageTest.logInSuccesfully();
+      const loginPage = new LoginPage(page);
+      const userName = process.env.USERNAME!;
+      const passWord = process.env.PASSWORD!;
+      await loginPage.navigateToLoginPage();
+      await loginPage.clickPolicyLoginLink();
+      await loginPage.enterUsername(userName);
+      await loginPage.clickNextButton();
+      await loginPage.enterPassword(passWord);
+      await loginPage.clickLoginButton();
+      await loginPage.verifyLoginSuccess();
     });
 
-    // Step 2: Loop through 2 records
-    const maxRecords = 2;
-    for (let i = 0; i < maxRecords; i++) {
+    // Step 2: Loop through records for this browser
+    for (let i = 0; i < AccountDetails.length; i++) {
       const Account = AccountDetails[i];
       const PDrecords = PolicyDetailsrecords[i];
       const summary = SummaryRecord[i];
@@ -80,10 +99,11 @@ test.describe('GPA DWB Policy Creation Test', () => {
 
       await test.step(`Record ${i + 1} - ${title}`, async () => {
         try {
-          // Account creation
           logger.info(`Starting test for record ${i + 1}: ${title}`);
+
           const accountPage = new AccountPage(page, testInfo);
           const policyDetailsPage = new PolicyDetailsPage(page, testInfo);
+
           await accountPage.navigateToGPA(page, testInfo);
           await accountPage.searchAccountDetails(
             page,
@@ -94,6 +114,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
             Account['ZipCode'],
             Account['State'],
           );
+
           await accountPage.ClickonContinueasNewCustomer(page, testInfo);
           await accountPage.enterAccountDetails(
             page,
@@ -105,6 +126,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
             Account['SSN'],
             Account['Customer_Suffix'],
           );
+
           await accountPage.enterMailingAddress(
             page,
             testInfo,
@@ -112,6 +134,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
             Account['StreetAddress1'],
             Account['StreetAddress2'],
           );
+
           await accountPage.ClickonContinue();
           await policyDetailsPage.EnterProducercode(
             testInfo,
@@ -127,13 +150,16 @@ test.describe('GPA DWB Policy Creation Test', () => {
             page,
             testInfo,
           );
+
           acc_created = await accountPage.getAccountNumberGenerated();
           submissionNumber = await accountPage.getSubmissionNumberGenerated();
+
           logger.info(`Submission number: ${submissionNumber}`);
           logger.info(`Account number: ${acc_created}`);
           logger.info('Policy Number to be generated later: ' + policy_number);
+
           results.push({
-            testCase: `${title}: ${i + 1}`,
+            testCase: `${title}: ${i + 1} (${browserName})`,
             status: acc_created === '' ? 'FAIL' : 'PASS',
             Account_number: acc_created,
             Submission_number: submissionNumber,
@@ -145,15 +171,14 @@ test.describe('GPA DWB Policy Creation Test', () => {
           logger.error(`Test failed for ${Account['First_Name']}:`, error);
 
           results.push({
-            testCase: `${title}: ${i + 1}`,
-            status: `Failed: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
+            testCase: `${title}: ${i + 1} (${browserName})`,
+            status: `Failed: ${error instanceof Error ? error.message : String(error)}`,
             Account_number: acc_created,
             Submission_number: submissionNumber,
             Policy_number: policy_number,
             UWIDescription: UWI_Description,
           });
+
           test.fail();
         }
       });

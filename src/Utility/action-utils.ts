@@ -4,6 +4,7 @@
  */
 import { Dialog, Locator, Response } from '@playwright/test';
 import { getPage } from './page-utils';
+import logger from '../Utility/logger';
 import {
   CheckOptions,
   ClearOptions,
@@ -293,7 +294,7 @@ export async function acceptAlert(
     dialogMessage = dialog.message();
     dialog
       .accept(promptText)
-      .catch((e) => console.error('Error accepting dialog:', e));
+      .catch((e) => logger.error('Error accepting dialog:', e));
   });
   await locator.click();
   // temporary fix to alerts - Need to be fixed
@@ -311,7 +312,7 @@ export async function dismissAlert(input: string | Locator): Promise<string> {
   let dialogMessage = '';
   getPage().once('dialog', (dialog) => {
     dialogMessage = dialog.message();
-    dialog.dismiss().catch((e) => console.error('Error dismissing dialog:', e));
+    dialog.dismiss().catch((e) => logger.error('Error dismissing dialog:', e));
   });
   await locator.click({ noWaitAfter: true });
   // temporary fix for alerts - Need to be fixed
@@ -406,7 +407,7 @@ export async function downloadFile(
   await click(locator);
   const download = await downloadPromise;
   // Wait for the download process to complete
-  console.log(await download.path());
+  logger.info(await download.path());
   // Save downloaded file somewhere
   await download.saveAs(path);
 }

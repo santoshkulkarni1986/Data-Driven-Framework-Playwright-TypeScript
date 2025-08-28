@@ -37,7 +37,7 @@ export default defineConfig({
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
     // Compiled JS reporters (dist folder)
-   
+
     [
       './dist/Utility/PdfReporter.js',
       { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' },
@@ -64,9 +64,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'],
-        headless: true
-       },
+      use: { ...devices['Desktop Chrome'], headless: true },
     },
-      ],
-});
+  {
+    name: 'firefox',
+      use: { ...devices['Desktop Firefox'], headless: true },
+    },
+    
+    // Add more projects if needed
+  ],
+  }
+);
