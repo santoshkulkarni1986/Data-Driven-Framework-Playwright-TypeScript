@@ -4,7 +4,13 @@
     "allowSyntheticDefaultImports": true,
     "module": "commonjs",
     "target": "ES2020",
-    "outDir": "./dist",
-    "strict": true
-  }
+    "outDir": "dist",        // compiled JS files go here
+    "rootDir": "./src",        // source TS files
+    "strict": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],  // compile all TS files under src/
+  "exclude": ["node_modules", "dist"]
 }
