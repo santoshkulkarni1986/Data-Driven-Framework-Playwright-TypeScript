@@ -521,7 +521,7 @@ export class AccountPage {
    * Enters producer code
    * @param page Playwright Page
    */
-  public async EnterProducercode(page: Page) {
+  public async EnterProducercode() {
     try {
       logger.info('Starting EnterProducercode method');
 
