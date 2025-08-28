@@ -1,8 +1,23 @@
 import { defineConfig, devices } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
+import { getEnv } from './src/helper/env/env'; // adjust path as per your project
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+getEnv();
+// Ensure report folders exist before tests run
+const reportFolders = [
+  'FinalReports/reports/pdf',
+  'FinalReports/monocart-report',
+];
+
+reportFolders.forEach((folder) => {
+  const folderPath = path.resolve(folder);
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+    console.log(`Created folder: ${folderPath}`);
+  }
+});
+
 export default defineConfig({
   testDir: './src/tests',
   fullyParallel: true,
@@ -15,12 +30,18 @@ export default defineConfig({
       'html',
       {
         open: 'never',
-        outputFolder: 'playwright-report',
-        title: 'Rashmi Automation Report',
+        outputFolder: 'FinalReports/playwright-report',
+        title: 'Santosh Kulkarni POC',
       },
     ],
-    ['junit', { outputFile: 'test-results/results.xml' }],
+    ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
+    // Compiled JS reporters (dist folder)
+   
+    [
+      './dist/Utility/PdfReporter.js',
+      { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' },
+    ],
 
     [
       'monocart-reporter',
@@ -29,33 +50,23 @@ export default defineConfig({
         outputFile: './FinalReports/monocart-report/index.html',
       },
     ],
+
+    ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
-  timeout: 120 * 1000, // 2 minutes max per test
+
   use: {
-    trace: 'on', // collect trace for debugging
-    screenshot: 'on', // take screenshot on failure
-    video: 'on', // record video
-    viewport: { width: 1280, height: 720 },
-    actionTimeout: 30 * 1000, // 30 seconds for actions
-    navigationTimeout: 60 * 1000, // 60 seconds for page.goto/navigation
-    ignoreHTTPSErrors: true,
+    baseURL: process.env.AMSUITEBASEURL || 'https://default-url.com',
+    trace: 'on',
+    screenshot: 'on',
+    video: 'on',
   },
+
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'],
+        headless: true
+       },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    },
-    {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
-  ],
+      ],
 });

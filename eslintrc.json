@@ -1,10 +1,13 @@
 {
-"extends": [
-"eslint:recommended",
-"plugin:@typescript-eslint/recommended",
-"plugin:prettier/recommended"
-],
-"rules": {
-"prettier/prettier": "error"
-}
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+    "plugin:playwright/recommended"
+  ],
+  "plugins": ["playwright"],
+  "rules": {
+    "prettier/prettier": "error",
+    "playwright/no-wait-for-timeout": "off" 
+    }
 }

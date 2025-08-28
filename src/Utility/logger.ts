@@ -15,10 +15,10 @@ const logger = createLogger({
   transports: [
     new transports.Console(),
 
-    new transports.File({ filename: 'ExecutionLogs/logs/app.log' }),
+    new transports.File({ filename: 'FinalReports/logs/app.log' }),
 
     new transports.File({
-      filename: 'ExecutionLogs/logs/error.log',
+      filename: 'FinalReports/logs/error.log',
       level: 'error',
     }),
   ],
@@ -26,22 +26,22 @@ const logger = createLogger({
 
 // Log uncaught exceptions and unhandled rejections
 logger.exceptions.handle(
-  new transports.File({ filename: 'ExecutionLogs/logs/exceptions.log' }),
+  new transports.File({ filename: 'FinalReports/logs/exceptions.log' }),
 );
 
 logger.rejections.handle(
-  new transports.File({ filename: 'ExecutionLogs/logs/rejections.log' }),
+  new transports.File({ filename: 'FinalReports/logs/rejections.log' }),
 );
 
 logger.rejections.handle(
-  new transports.File({ filename: 'ExecutionLogs/logs/rejections.log' }),
+  new transports.File({ filename: 'FinalReports/logs/rejections.log' }),
 );
 
 export function options(scenarioName: string) {
   return {
     transports: [
       new transports.File({
-        filename: `ExecutionLogs/logs/${scenarioName}/log.log`,
+        filename: `FinalReports/logs/${scenarioName}/log.log`,
         level: 'info',
       }),
     ],
