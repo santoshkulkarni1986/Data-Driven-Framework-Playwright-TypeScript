@@ -10,5 +10,4 @@ node_modules/
 test-results/traces/
 test-results/screenshots/
 /FinalReports/
-/dist/
 /test-results/
