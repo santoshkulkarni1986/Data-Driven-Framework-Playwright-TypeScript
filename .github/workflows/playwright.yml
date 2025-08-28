@@ -32,10 +32,6 @@ jobs:
       - name: List compiled files
         run: ls -R dist/Utility
 
-      # 5️⃣ Ensure dist/Utility folder exists (optional safety)
-      - name: Ensure dist folder
-        run: mkdir -p dist/Utility
-
       # 6️⃣ Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
