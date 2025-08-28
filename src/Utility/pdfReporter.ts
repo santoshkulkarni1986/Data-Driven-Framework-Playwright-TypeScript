@@ -50,8 +50,11 @@ class PDFReporter implements Reporter {
       for (const entry of entries) {
         const entryPath = path.join(this.screenshotBaseDir, entry);
         const stats = fs.statSync(entryPath);
-        if (stats.isDirectory()) fs.rmSync(entryPath, { recursive: true, force: true });
-        else fs.unlinkSync(entryPath);
+        if (stats.isDirectory()) {
+          fs.rmSync(entryPath, { recursive: true, force: true });
+        } else {
+          fs.unlinkSync(entryPath);
+        }
       }
       logger.info('🧹 Cleared all old screenshots.');
     }
@@ -131,11 +134,9 @@ class PDFReporter implements Reporter {
       },
     };
 
-    const pdfBuffer = await new Promise<Buffer>((resolve) => {
-      (pdfMake as any)
-        .createPdf(docDefinition)
-        .getBuffer((buffer: Buffer) => resolve(buffer));
-    });
+    const pdfBuffer = await new Promise<Buffer>((resolve) =>
+      (pdfMake as any).createPdf(docDefinition).getBuffer((buffer: Buffer) => resolve(buffer))
+    );
 
     const timestamp = new Date()
       .toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' })
