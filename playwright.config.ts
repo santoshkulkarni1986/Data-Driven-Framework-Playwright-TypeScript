@@ -38,11 +38,6 @@ export default defineConfig({
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
     // Compiled JS reporters (dist folder)
-
-     [
-      isCI ? './dist/Utility/PdfReporter.js' : './src/Utility/PdfReporter.ts',
-      { outputFolder: 'reports/pdf' }
-    ],
     [
       'monocart-reporter',
       {
