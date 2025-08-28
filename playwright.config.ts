@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import { getEnv } from './src/helper/env/env'; // adjust path as per your project
+const isCI = !!process.env.CI; // GitHub Actions sets CI=true
 
 getEnv();
 // Ensure report folders exist before tests run
@@ -38,9 +39,10 @@ export default defineConfig({
     ['@estruyf/github-actions-reporter'],
     // Compiled JS reporters (dist folder)
 
-      ['./dist/Utility/PdfReporter.js', { outputFolder: 'reports/pdf' }],
-
-
+     [
+      isCI ? './dist/Utility/PdfReporter.js' : './src/Utility/PdfReporter.ts',
+      { outputFolder: 'reports/pdf' }
+    ],
     [
       'monocart-reporter',
       {
