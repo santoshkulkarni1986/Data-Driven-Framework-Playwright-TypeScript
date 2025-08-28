@@ -44,17 +44,13 @@ class PDFReporter implements Reporter {
   onBegin(config: FullConfig) {
     this.baseURL = config.projects[0].use?.baseURL || '';
 
-    // Clear old screenshots
     if (fs.existsSync(this.screenshotBaseDir)) {
       const entries = fs.readdirSync(this.screenshotBaseDir);
       for (const entry of entries) {
         const entryPath = path.join(this.screenshotBaseDir, entry);
         const stats = fs.statSync(entryPath);
-        if (stats.isDirectory()) {
-          fs.rmSync(entryPath, { recursive: true, force: true });
-        } else {
-          fs.unlinkSync(entryPath);
-        }
+        if (stats.isDirectory()) fs.rmSync(entryPath, { recursive: true, force: true });
+        else fs.unlinkSync(entryPath);
       }
       logger.info('🧹 Cleared all old screenshots.');
     }
@@ -68,7 +64,6 @@ class PDFReporter implements Reporter {
       { text: `Overall Status: ${result.status}`, margin: [0, 0, 0, 10] },
     ];
 
-    // Table with step duration
     const tableBody = [
       ['Step', 'Status', 'Duration (s)'],
       ...result.steps.map((step: TestStep) => [
@@ -85,7 +80,6 @@ class PDFReporter implements Reporter {
       margin: [0, 10, 0, 10],
     });
 
-    // Attach screenshots for this test
     const safeTitle = test.title.replace(/[^\w\-]+/g, '_');
     const testScreenshotDir = path.join(this.screenshotBaseDir, safeTitle);
 
@@ -103,7 +97,6 @@ class PDFReporter implements Reporter {
         const imagePath = path.join(testScreenshotDir, file);
         const imageBuffer = fs.readFileSync(imagePath);
         const base64Image = imageBuffer.toString('base64');
-
         const dimensions = sizeOf(imageBuffer);
         const aspectRatio = dimensions.height! / dimensions.width!;
         const targetWidth = 400;
