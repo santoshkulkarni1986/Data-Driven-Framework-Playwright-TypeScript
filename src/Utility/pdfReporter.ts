@@ -47,40 +47,22 @@ class PDFReporter implements Reporter {
     // Clear old screenshots
     if (fs.existsSync(this.screenshotBaseDir)) {
       const entries = fs.readdirSync(this.screenshotBaseDir);
-
       for (const entry of entries) {
         const entryPath = path.join(this.screenshotBaseDir, entry);
         const stats = fs.statSync(entryPath);
-
-        if (stats.isDirectory()) {
-          fs.rmSync(entryPath, { recursive: true, force: true });
-        } else {
-          fs.unlinkSync(entryPath);
-        }
+        if (stats.isDirectory()) fs.rmSync(entryPath, { recursive: true, force: true });
+        else fs.unlinkSync(entryPath);
       }
-
       logger.info('🧹 Cleared all old screenshots.');
     }
   }
 
   async onTestEnd(test: TestCase, result: TestResult) {
     const content: any[] = [
-      {
-        text: '📄 Playwright Custom Report',
-        style: 'header',
-      },
-      {
-        text: `Base URL: ${this.baseURL}`,
-        margin: [0, 10, 0, 10],
-      },
-      {
-        text: `Test Case: ${test.title}`,
-        style: 'subheader',
-      },
-      {
-        text: `Overall Status: ${result.status}`,
-        margin: [0, 0, 0, 10],
-      },
+      { text: '📄 Playwright Custom Report', style: 'header' },
+      { text: `Base URL: ${this.baseURL}`, margin: [0, 10, 0, 10] },
+      { text: `Test Case: ${test.title}`, style: 'subheader' },
+      { text: `Overall Status: ${result.status}`, margin: [0, 0, 0, 10] },
     ];
 
     // Table with step duration
@@ -95,10 +77,7 @@ class PDFReporter implements Reporter {
     ];
 
     content.push({
-      table: {
-        body: tableBody,
-        widths: ['*', '*', '*'],
-      },
+      table: { body: tableBody, widths: ['*', '*', '*'] },
       layout: 'lightHorizontalLines',
       margin: [0, 10, 0, 10],
     });
@@ -132,7 +111,6 @@ class PDFReporter implements Reporter {
           style: 'caption',
           margin: [0, 10, 0, 5],
         });
-
         content.push({
           image: `data:image/png;base64,${base64Image}`,
           width: targetWidth,
@@ -147,25 +125,16 @@ class PDFReporter implements Reporter {
     const docDefinition = {
       content,
       styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-        },
-        subheader: {
-          fontSize: 14,
-          bold: true,
-        },
-        caption: {
-          fontSize: 12,
-          italics: true,
-        },
+        header: { fontSize: 18, bold: true },
+        subheader: { fontSize: 14, bold: true },
+        caption: { fontSize: 12, italics: true },
       },
     };
 
     const pdfBuffer = await new Promise<Buffer>((resolve) => {
-      (pdfMake as any).createPdf(docDefinition).getBuffer((buffer: Buffer) =>
-        resolve(buffer),
-      );
+      (pdfMake as any)
+        .createPdf(docDefinition)
+        .getBuffer((buffer: Buffer) => resolve(buffer));
     });
 
     const timestamp = new Date()
