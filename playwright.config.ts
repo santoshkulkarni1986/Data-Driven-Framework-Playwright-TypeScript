@@ -23,7 +23,6 @@ reportFolders.forEach((folder) => {
 });
 
 // ✅ Resolve PdfReporter.js from dist folder
-const pdfReporterPath = path.resolve(__dirname, 'dist', 'Utility', 'PdfReporter.js');
 
 export default defineConfig({
   testDir: './src/tests',
@@ -36,7 +35,7 @@ export default defineConfig({
     ['html', { open: 'never', outputFolder: 'FinalReports/playwright-report' }],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
-    [pdfReporterPath, { outputDir: 'FinalReports/reports/pdf' }], // ✅ resolved JS path
+    ['./dist/Utility/PdfReporter.js', { outputDir: 'FinalReports/reports/pdf' }],
     ['monocart-reporter', { outputFile: './FinalReports/monocart-report/index.html' }],
     ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
