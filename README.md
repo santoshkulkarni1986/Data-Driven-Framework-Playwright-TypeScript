@@ -29,15 +29,19 @@ This project is an automated testing suite using Playwright and TypeScript for e
    ```powershell
    npm install
    ```
+3. Install Playwright browsers:
+   ```powershell
+   npx playwright install
+   ```
 
 ### Running Tests
-- To run all tests:
+- To execute all test scripts:
   ```powershell
-  npx playwright test
+  npm test
   ```
-- To run a specific test file:
+- To execute a specific test file:
   ```powershell
-  npx playwright test tests/<test-file>.spec.ts
+  npm test tests/<test-file>.spec.ts
   ```
 
 ### Generating Reports
