@@ -5,6 +5,7 @@ import { getEnv } from './src/helper/env/env'; // adjust if needed
 
 // Load environment variables
 getEnv();
+const pdfReporterPath = path.join(__dirname, 'dist/Utility/PdfReporter.js');
 
 // Ensure report folders exist
 const reportFolders = [
@@ -35,6 +36,7 @@ export default defineConfig({
     ['html', { open: 'never', outputFolder: 'FinalReports/playwright-report' }],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
+    [pdfReporterPath, { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' }],
     ['monocart-reporter', { outputFile: './FinalReports/monocart-report/index.html' }],
     ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
