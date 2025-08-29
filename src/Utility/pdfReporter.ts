@@ -1,4 +1,10 @@
-import { Reporter, TestCase, TestResult, TestStep, FullConfig } from '@playwright/test/reporter';
+import {
+  Reporter,
+  TestCase,
+  TestResult,
+  TestStep,
+  FullConfig,
+} from '@playwright/test/reporter';
 import * as fs from 'fs';
 import * as path from 'path';
 import sizeOf from 'image-size';
@@ -6,7 +12,13 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts'; // npm install pdfmake
 
 pdfMake.vfs = pdfFonts.vfs;
-const screenshotDir = path.join(__dirname, '..', 'pdf-report', 'data');
+const screenshotDir = path.join(
+  __dirname,
+  'FinalReports',
+  'reports',
+  'pdf',
+  'data',
+);
 
 interface PDFReporterOptions {
   outputDir?: string;
@@ -17,7 +29,7 @@ class PDFReporter implements Reporter {
   private outputDir: string;
 
   constructor(options: PDFReporterOptions = {}) {
-    this.outputDir ='pdf-report';
+    this.outputDir = 'FinalReports/reports/pdf/';
     if (!fs.existsSync(screenshotDir)) {
       fs.mkdirSync(screenshotDir, { recursive: true });
     }
@@ -38,7 +50,9 @@ class PDFReporter implements Reporter {
           fs.unlinkSync(entryPath);
         }
       }
-      console.log('🧹 Cleared all contents inside "data" folder, but kept the folder itself.');
+      console.log(
+        '🧹 Cleared all contents inside "data" folder, but kept the folder itself.',
+      );
     } else {
       console.log('⚠️ "data" folder does not exist.');
     }
@@ -57,9 +71,9 @@ class PDFReporter implements Reporter {
       ...result.steps.map((step: TestStep) => [
         step.title,
         step.error ? '❌ Failed' : '✔ Passed',
-        String(step.duration/1000 || 0),
+        String(step.duration / 1000 || 0),
       ]),
-      ['Total Test Duration', '', String(result.duration/1000 || 0)],
+      ['Total Test Duration', '', String(result.duration / 1000 || 0)],
     ];
 
     content.push({
@@ -71,10 +85,9 @@ class PDFReporter implements Reporter {
       margin: [0, 10, 0, 10],
     });
 
-
     const files = fs.readdirSync(screenshotDir);
-    let matchingScreenshots = files.filter(file =>
-      file.startsWith('Step') || /\.(png|jpg|jpeg)$/i.test(file)
+    let matchingScreenshots = files.filter(
+      (file) => file.startsWith('Step') || /\.(png|jpg|jpeg)$/i.test(file),
     );
 
     //matchingScreenshots.sort();
@@ -83,7 +96,9 @@ class PDFReporter implements Reporter {
     const allFiles = fs.readdirSync(screenshotDir);
 
     // Filter only PNG files
-    const pngFiles = allFiles.filter(file => file.toLowerCase().endsWith('.png'));
+    const pngFiles = allFiles.filter((file) =>
+      file.toLowerCase().endsWith('.png'),
+    );
 
     // Sort by creation time
     const sortedPngFiles = pngFiles.sort((a, b) => {
@@ -131,10 +146,15 @@ class PDFReporter implements Reporter {
       });
     });
 
-    const timestamp = new Date().toLocaleString('en-GB', {
-      timeZone: 'Asia/Kolkata',
-    }).replace(/[/:, ]+/g, '_');
-    const filePath = path.join(this.outputDir, `${test.title.replace(/\s+/g, '_')}_${timestamp}.pdf`);
+    const timestamp = new Date()
+      .toLocaleString('en-GB', {
+        timeZone: 'Asia/Kolkata',
+      })
+      .replace(/[/:, ]+/g, '_');
+    const filePath = path.join(
+      this.outputDir,
+      `${test.title.replace(/\s+/g, '_')}_${timestamp}.pdf`,
+    );
     fs.writeFileSync(filePath, pdfBuffer);
     console.log(`✅ PDF report created: ${filePath}`);
   }
