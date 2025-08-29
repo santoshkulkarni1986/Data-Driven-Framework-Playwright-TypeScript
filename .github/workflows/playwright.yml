@@ -26,7 +26,7 @@ jobs:
 
       # 4️⃣ Compile TypeScript
       - name: Compile TypeScript
-        run: npx tsc --project tsconfig.json --ignoreDeprecations 6.0
+        run: npx tsc --project tsconfig.json
 
       # 5️⃣ List dist folder
       - name: List dist folder
