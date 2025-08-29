@@ -24,11 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4️⃣ Compile TypeScript to dist folder
+      # 4️⃣ Compile TypeScript
       - name: Compile TypeScript
-        run: npx tsc
+        run: npx tsc --project tsconfig.json
 
-      # 5️⃣ List contents of dist folder
+      # 5️⃣ List dist folder
       - name: List dist folder
         run: ls -R dist
 
