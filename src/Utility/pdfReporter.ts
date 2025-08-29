@@ -12,8 +12,9 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts'; // npm install pdfmake
 
 pdfMake.vfs = pdfFonts.vfs;
+// ✅ Root-level FinalReports directory
 const screenshotDir = path.join(
-  __dirname,
+  process.cwd(),
   'FinalReports',
   'reports',
   'pdf',
@@ -29,7 +30,7 @@ class PDFReporter implements Reporter {
   private outputDir: string;
 
   constructor(options: PDFReporterOptions = {}) {
-    this.outputDir = 'FinalReports/reports/pdf/';
+    this.outputDir = 'FinalReports/reports/pdf';
     if (!fs.existsSync(screenshotDir)) {
       fs.mkdirSync(screenshotDir, { recursive: true });
     }
