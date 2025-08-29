@@ -23,7 +23,7 @@ reportFolders.forEach((folder) => {
 });
 
 // ✅ Always resolve PdfReporter.js from dist
-const pdfReporterPath = path.resolve(__dirname, 'dist/Utility/PdfReporter.js');
+const pdfReporterPath = path.resolve(__dirname, './dist/Utility/PdfReporter.js');
 
 export default defineConfig({
   testDir: './src/tests',
