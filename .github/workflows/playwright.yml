@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Rashmi Somanathayya - Playwright Tests
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
           path: FinalReports/reports/pdf/
           retention-days: 30
 
-      # 🔟 Upload Excel/Word Reports
+      # 🔟 Upload Excel Reports
       - name: Upload Excel Reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -74,4 +74,13 @@ jobs:
         with:
           name: monocart-report
           path: FinalReports/monocart-report/
+          retention-days: 30
+
+      # 1️⃣2️⃣ Upload Execution Logs
+      - name: Upload Execution Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-logs
+          path: FinalReports/logs/
           retention-days: 30
