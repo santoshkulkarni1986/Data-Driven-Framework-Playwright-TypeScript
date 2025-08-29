@@ -1,157 +1,134 @@
-import {
-  Reporter,
-  TestCase,
-  TestResult,
-  TestStep,
-  FullConfig,
-} from '@playwright/test/reporter';
-import * as fs from 'fs';
-import * as path from 'path';
-import sizeOf from 'image-size';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts'; // npm install pdfmake
+/**
+ * Playwright PDF Reporter with screenshots
+ * Author: Santosh Kulkarni
+ */
+import { Reporter, TestCase, TestResult, FullResult } from '@playwright/test/reporter';
+import fs from 'fs';
+import path from 'path';
+import PDFDocument from 'pdfkit';
 
-pdfMake.vfs = pdfFonts.vfs;
-const screenshotDir = path.join(__dirname, '..', 'pdf-report', 'data');
-
-interface PDFReporterOptions {
-  outputDir?: string;
+interface PdfReporterOptions {
+  outputFile?: string;
+  screenshotDir?: string;
 }
 
-class PDFReporter implements Reporter {
-  private baseURL: string = '';
-  private outputDir: string;
+class PdfReporter implements Reporter {
+  private testResults: {
+    testCase: string;
+    overallStatus: string;
+    totalDuration: string;
+    steps: { step: string; status: string; time: string }[];
+    screenshots: string[];
+  }[] = [];
 
-  constructor(options: PDFReporterOptions = {}) {
-    this.outputDir = 'pdf-report';
-    if (!fs.existsSync(screenshotDir)) {
-      fs.mkdirSync(screenshotDir, { recursive: true });
+  private outputFile: string;
+  private screenshotDir: string;
+
+  constructor(options: PdfReporterOptions = {}) {
+    this.outputFile =
+      options.outputFile || path.resolve('FinalReports/reports/pdf/TestReport.pdf');
+    this.screenshotDir = options.screenshotDir || path.resolve('FinalReports/reports/pdf/data');
+
+    if (!fs.existsSync(this.screenshotDir)) {
+      fs.mkdirSync(this.screenshotDir, { recursive: true });
     }
   }
 
-  onBegin(config: FullConfig) {
-    this.baseURL = config.projects[0].use?.baseURL || '';
+  onTestEnd(test: TestCase, result: TestResult) {
+    // collect test steps
+    const steps =
+      result.steps?.map((s) => ({
+        step: s.title,
+        status: s.error ? '❌ Failed' : '✔ Passed',
+        time: ((s.duration || 0) / 1000).toFixed(2) + ' s',
+      })) || [];
 
-    if (fs.existsSync(screenshotDir)) {
-      const entries = fs.readdirSync(screenshotDir);
-      for (const entry of entries) {
-        const entryPath = path.join(screenshotDir, entry);
-        const stats = fs.statSync(entryPath);
+    // collect screenshots for this test (if any)
+    let screenshots: string[] = [];
+    if (fs.existsSync(this.screenshotDir)) {
+      const allFiles = fs.readdirSync(this.screenshotDir);
+      const safeTitle = test.title.replace(/[^\w\-]+/g, '_');
+      screenshots = allFiles
+        .filter((f) => f.includes(safeTitle) && f.toLowerCase().endsWith('.png'))
+        .map((f) => path.join(this.screenshotDir, f));
+    }
 
-        if (stats.isDirectory()) {
-          fs.rmSync(entryPath, { recursive: true, force: true });
-        } else {
-          fs.unlinkSync(entryPath);
+    this.testResults.push({
+      testCase: test.title,
+      overallStatus: result.status.toUpperCase(),
+      totalDuration: ((result.duration || 0) / 1000).toFixed(2) + ' s',
+      steps,
+      screenshots,
+    });
+  }
+
+  async onEnd(_result: FullResult) {
+    const outputDir = path.dirname(this.outputFile);
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+    const stream = fs.createWriteStream(this.outputFile);
+    doc.pipe(stream);
+
+    doc.fontSize(18).text('Playwright Test Execution Report', { align: 'center' });
+    doc.moveDown(1.5);
+
+    this.testResults.forEach((result, index) => {
+      doc.fontSize(14).text(`Test Case: ${result.testCase}`, { underline: true });
+      doc.fontSize(12).text(`Overall Status: ${result.overallStatus}`);
+      doc.text(`Total Duration: ${result.totalDuration}`);
+      doc.moveDown(0.5);
+
+      // table for steps
+      const tableTop = doc.y;
+      const rowHeight = 25;
+      const colWidths = [250, 100, 120];
+      const startX = 50;
+
+      const drawRow = (
+        y: number,
+        step: { step: string; status: string; time: string } | null,
+        isHeader = false
+      ) => {
+        let x = startX;
+        const headers = ['Step', 'Status', 'Time'];
+        const data = step ? [step.step, step.status, step.time] : headers;
+
+        data.forEach((text, i) => {
+          const width = colWidths[i];
+          doc.rect(x, y, width, rowHeight).stroke();
+          doc.fontSize(10);
+          doc.font(isHeader ? 'Helvetica-Bold' : 'Helvetica');
+          doc.text(text, x + 5, y + 8, { width: width - 10, align: 'left' });
+          x += width;
+        });
+      };
+
+      drawRow(tableTop, null, true); // header
+      result.steps.forEach((s, i) => drawRow(tableTop + rowHeight * (i + 1), s));
+
+      doc.moveDown(2);
+
+      // add screenshots
+      result.screenshots.forEach((screenshotPath) => {
+        if (fs.existsSync(screenshotPath)) {
+          try {
+            doc.addPage();
+            doc.fontSize(12).text(`Screenshot: ${path.basename(screenshotPath)}`);
+            doc.image(screenshotPath, { width: 400 });
+            doc.moveDown(1);
+          } catch (err) {
+            doc.text(`⚠️ Failed to add screenshot: ${screenshotPath}`);
+          }
         }
-      }
-      console.log(
-        '🧹 Cleared all contents inside "data" folder, but kept the folder itself.',
-      );
-    } else {
-      console.log('⚠️ "data" folder does not exist.');
-    }
-  }
-
-  async onTestEnd(test: TestCase, result: TestResult) {
-    const content: any[] = [
-      { text: '📄 Playwright Custom Report', style: 'header' },
-      { text: `Base URL: ${this.baseURL}`, margin: [0, 10, 0, 10] },
-      { text: `Test Case: ${test.title}`, style: 'subheader' },
-      { text: `Overall Status: ${result.status}`, margin: [0, 0, 0, 10] },
-    ];
-
-    const tableBody = [
-      ['Step', 'Status', 'Time Taken (s)'],
-      ...result.steps.map((step: TestStep) => [
-        step.title,
-        step.error ? '❌ Failed' : '✔ Passed',
-        String(step.duration / 1000 || 0),
-      ]),
-      ['Total Test Duration', '', String(result.duration / 1000 || 0)],
-    ];
-
-    content.push({
-      table: {
-        body: tableBody,
-        widths: ['*', '*', '*'],
-      },
-      layout: 'lightHorizontalLines',
-      margin: [0, 10, 0, 10],
-    });
-
-    const files = fs.readdirSync(screenshotDir);
-    let matchingScreenshots = files.filter(
-      (file) => file.startsWith('Step') || /\.(png|jpg|jpeg)$/i.test(file),
-    );
-
-    //matchingScreenshots.sort();
-
-    // Read all files in the directory
-    const allFiles = fs.readdirSync(screenshotDir);
-
-    // Filter only PNG files
-    const pngFiles = allFiles.filter((file) =>
-      file.toLowerCase().endsWith('.png'),
-    );
-
-    // Sort by creation time
-    const sortedPngFiles = pngFiles.sort((a, b) => {
-      const aStats = fs.statSync(path.join(screenshotDir, a));
-      const bStats = fs.statSync(path.join(screenshotDir, b));
-      return aStats.birthtimeMs - bStats.birthtimeMs;
-    });
-
-    for (const file of sortedPngFiles) {
-      const imagePath = path.join(screenshotDir, file);
-      const imageBuffer = fs.readFileSync(imagePath);
-      const base64Image = imageBuffer.toString('base64');
-
-      const dimensions = sizeOf(imageBuffer);
-      const aspectRatio = dimensions.height! / dimensions.width!;
-      const targetWidth = 400;
-      const targetHeight = Math.round(targetWidth * aspectRatio);
-
-      content.push({
-        text: `Screenshot: ${file}`,
-        style: 'caption',
-        margin: [0, 10, 0, 5],
       });
 
-      content.push({
-        image: `data:image/png;base64,${base64Image}`,
-        width: targetWidth,
-        height: targetHeight,
-        margin: [0, 0, 0, 20],
-      });
-    }
-
-    const docDefinition = {
-      content,
-      styles: {
-        header: { fontSize: 18, bold: true },
-        subheader: { fontSize: 14, bold: true },
-        caption: { fontSize: 12, italics: true },
-      },
-    };
-
-    const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-      pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
-        resolve(buffer);
-      });
+      if (index < this.testResults.length - 1) doc.addPage();
     });
 
-    const timestamp = new Date()
-      .toLocaleString('en-GB', {
-        timeZone: 'Asia/Kolkata',
-      })
-      .replace(/[/:, ]+/g, '_');
-    const filePath = path.join(
-      this.outputDir,
-      `${test.title.replace(/\s+/g, '_')}_${timestamp}.pdf`,
-    );
-    fs.writeFileSync(filePath, pdfBuffer);
-    console.log(`✅ PDF report created: ${filePath}`);
+    doc.end();
+    console.log(`✅ PDF Report generated at: ${this.outputFile}`);
   }
 }
 
-export default PDFReporter;
+export default PdfReporter;
