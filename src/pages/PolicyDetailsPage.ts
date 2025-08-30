@@ -86,25 +86,30 @@ export class PolicyDetailsPage {
       logger.info(`Entering Producer Code: ${codestr}`);
 
       await this.producerCode().waitFor({ state: 'visible', timeout: 5000 });
+      logger.info(`Scrolling to Producer Code field: ${this.producerCode().toString()}`);
       await this.producerCode().scrollIntoViewIfNeeded();
+      logger.info(`Successfully scrolled to Producer Code field`);
+      logger.info(`clicking Producer Code field: ${this.producerCode().toString()}`);
       await click(this.producerCode());
+      logger.info(`Successfully clicked Producer Code field: ${this.producerCode().toString()}`);
       await this.producerCode().press('Home');
+      logger.info(`Pressed 'Home' key in Producer Code field`);
+      logger.info(`Filling Producer Code field with value: ${codestr}`);
       await fill(this.producerCode(), codestr);
-
+      logger.info(`Successfully filled Producer Code field with value: ${codestr}`);
       logger.info(`Clicking Search Producer button: ${this.searchProducerBtn().toString()}`);
       await this.searchProducerBtn().waitFor({
         state: 'visible',
         timeout: 5000,
       });
       await click(this.searchProducerBtn());
-
+      logger.info(`Clicked Search Producer button successfully`);
+      logger.info(`Waiting for 4 seconds to allow search results to load`);
       await page.waitForTimeout(4000);
       await captureAndAttach(page, testInfo, 'Enter Producer code');
-
       logger.info(`Clicking Next button`);
       await this.nextBtn().first().click({ force: true });
       logger.info(`Clicked Next button successfully: ${this.nextBtn().toString()}`);
-
       logger.info(`Producer code entered successfully: ${codestr}`);
     } catch (error) {
       logger.error(`Failed to enter Producer code: ${error}`);

@@ -172,7 +172,9 @@ export class AccountPage {
 
       logger.info(`Filling the lastname in search details`);
       await fill(this.lastName(), lastName);
-      logger.info(`Successfully filled first and last name:${firstName} ${lastName}`);
+      logger.info(
+        `Successfully filled first and last name:${firstName} ${lastName}`,
+      );
 
       logger.info(`Filling the city in search details`);
       await fill(this.city(), city);
@@ -211,7 +213,9 @@ export class AccountPage {
     try {
       logger.info(`Clicking on Continue as New Customer button`);
       await click(this.continueNewCustomer(), { timeout: MAX_TIMEOUT });
-      logger.info(`Continue as New Customer button clicked successfully: ${this.continueNewCustomer().toString()} `);
+      logger.info(
+        `Continue as New Customer button clicked successfully: ${this.continueNewCustomer().toString()} `,
+      );
       await captureAndAttach(
         page,
         testInfo,
@@ -277,7 +281,9 @@ export class AccountPage {
       // SSN
       logger.info(`Filling SSN: ${ssn}`);
       await scrollLocatorIntoView(this.ssNumber());
-      logger.info(`Successfully scrolled to SSN field: ${this.ssNumber().toString()}`);
+      logger.info(
+        `Successfully scrolled to SSN field: ${this.ssNumber().toString()}`,
+      );
       await fill(this.ssNumber(), ssn);
       logger.info(`Successfully filled SSN`);
 
@@ -288,7 +294,9 @@ export class AccountPage {
 
       // Capture screenshot
       await captureAndAttach(page, testInfo, 'Enter account details');
-      logger.info(`Account details entered successfully: ${this.middleName().toString()}, ${this.dob().toString()}, ${this.phoneType().toString()}, ${this.phoneNumber().toString()}, ${this.ssNumber().toString()}, ${this.custSuffix().toString()}`);
+      logger.info(
+        `Account details entered successfully: ${this.middleName().toString()}, ${this.dob().toString()}, ${this.phoneType().toString()}, ${this.phoneNumber().toString()}, ${this.ssNumber().toString()}, ${this.custSuffix().toString()}`,
+      );
     } catch (error) {
       logger.error(
         `Error while entering account details: ${error instanceof Error ? error.message : String(error)}`,
@@ -320,7 +328,9 @@ export class AccountPage {
       // Address Line 1
       logger.info(`Scrolling to Address Line 1 field`);
       await this.addressLine1().scrollIntoViewIfNeeded();
-      logger.info(`Successfully scrolled to Address Line 1 field: ${this.addressLine1().toString()}`);
+      logger.info(
+        `Successfully scrolled to Address Line 1 field: ${this.addressLine1().toString()}`,
+      );
       logger.info(`Filling Address Line 1: ${AddLine1}`);
       await fill(this.addressLine1(), AddLine1);
       logger.info(`Successfully filled Address Line 1: ${AddLine1}`);
@@ -341,7 +351,9 @@ export class AccountPage {
 
       // Capture screenshot
       await captureAndAttach(page, testInfo, 'Enter mailing address');
-      logger.info(`Mailing address entered successfully: ${this.addressLine1().toString()}, ${this.addressLine2().toString()}, ${this.attCareOf().toString()}`);
+      logger.info(
+        `Mailing address entered successfully: ${this.addressLine1().toString()}, ${this.addressLine2().toString()}, ${this.attCareOf().toString()}`,
+      );
     } catch (error) {
       logger.error(
         `Error while entering mailing address: ${error instanceof Error ? error.message : String(error)}`,
@@ -529,24 +541,19 @@ export class AccountPage {
   public async EnterProducercode() {
     try {
       logger.info('Starting EnterProducercode method');
-
       logger.info('Clicking on Producer Code input field');
       await click(this.producerCode());
       logger.info('Producer Code input field clicked successfully');
-
       logger.info('Clearing and entering producer code: 999006');
       await this.producerCode().press('Home');
       await fill(this.producerCode(), '999006');
       logger.info('Producer code entered successfully');
-
       logger.info('Clicking Search Producer button');
       await click(this.searchProducerBtn());
       logger.info('Search Producer button clicked successfully');
-
       logger.info('Scrolling into view Next button');
       await this.nextBtn().first().scrollIntoViewIfNeeded();
       logger.info('Successfully scrolled to Next button');
-
       logger.info('Taking screenshot of Next button before clicking');
       await this.nextBtn()
         .first()
