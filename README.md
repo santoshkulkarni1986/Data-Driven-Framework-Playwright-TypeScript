@@ -32,16 +32,17 @@ This project is an automated testing suite using Playwright and TypeScript for e
 3. Install Playwright browsers:
    ```powershell
    npx playwright install
-   ```
+4. Conver TS file to Js using below command
+   ```npx tsc --project tsconfig.json
 
 ### Running Tests
 - To execute all test scripts:
   ```powershell
   npm test
   ```
-- To execute a specific test file:
+- To execute a specific test file configure on package.json in script section under test:
   ```powershell
-  npm test tests/<test-file>.spec.ts
+    "test": "cross-env ENV=test npx playwright test ./tests/"filename".sepc.ts,
   ```
 
 ### Generating Reports
