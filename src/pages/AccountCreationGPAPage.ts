@@ -106,9 +106,9 @@ export class AccountPage {
   public async navigateToGPA(page: Page, testInfo: TestInfo) {
     try {
       logger.info('Navigating to GPA home page...');
-      await gotoURL(AMSuite_GPAURL,{timeout: MAX_TIMEOUT});
+      await gotoURL(AMSuite_GPAURL, { timeout: MAX_TIMEOUT });
       await captureAndAttach(page, testInfo, 'Navigate to GPA Home Page');
-      await page.waitForLoadState('load',{ timeout: MAX_TIMEOUT});
+      await page.waitForLoadState('load', { timeout: MAX_TIMEOUT });
       const startQuote = await this.startNewQuote();
       await startQuote.waitFor({ state: 'visible', timeout: 60000 });
       logger.info('Start New Quote button is visible.');
@@ -116,7 +116,10 @@ export class AccountPage {
       const popupVisible = await isElementVisible(this.popupForHomePage);
       if (popupVisible) {
         logger.info("Popup detected on Home Page. Clicking 'Yes' button...");
-        await this.yesButtonInPopup().waitFor({ state: 'visible', timeout: 60000 });
+        await this.yesButtonInPopup().waitFor({
+          state: 'visible',
+          timeout: 60000,
+        });
         await this.yesButtonInPopup().click({ force: true });
         await page.waitForTimeout(5000);
         await captureAndAttach(
