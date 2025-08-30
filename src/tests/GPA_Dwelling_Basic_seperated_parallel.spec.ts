@@ -35,9 +35,19 @@ const AccountDetailsAll = readExcelfile(excelPath, 'Account_Creation');
 const PolicyDetailsAll = readExcelfile(excelPath, 'Policy_Details');
 const SummaryRecordAll = readExcelfile(excelPath, 'Summary');
 
+// Filter only rows with Execution = Yes
+const executableRecordsAll = AccountDetailsAll.map((r, i) => ({
+  ...r,
+  index: i,
+})).filter((r) => r['Execution']?.toLowerCase() === 'yes');
+
+if (executableRecordsAll.length === 0) {
+  logger.error('No test rows marked for execution in Excel.');
+}
+
 // Write results after all tests
 test.afterAll(async () => {
-  const now = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 4);
+  const now = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 8);
   const filename = `DwellingBasicGPA_${now}`;
   await writeTestResultsToExcel(excelResultPath, filename, results);
 });
@@ -49,27 +59,14 @@ let policy_number: string = '##';
 let UWI_Description: string[] = [];
 
 test.describe('GPA DWB Policy Creation Test', () => {
-  test('Login once and create GPA policies', async ({
-    page,
-    browserName,
-  }, testInfo) => {
+  test('Login once and create GPA policies', async ({ page, browserName }, testInfo) => {
     test.setTimeout(1000 * 60 * 30); // 30 min
     page.setDefaultTimeout(1000 * 60 * 10); // 10 min
 
     // Step 0: Split records per browser
-    let AccountDetails: any[] = [];
-    let PolicyDetailsrecords: any[] = [];
-    let SummaryRecord: any[] = [];
-
-    if (browserName === 'chromium') {
-      AccountDetails = AccountDetailsAll.slice(0, 2);
-      PolicyDetailsrecords = PolicyDetailsAll.slice(0, 2);
-      SummaryRecord = SummaryRecordAll.slice(0, 2);
-    } else if (browserName === 'firefox') {
-      AccountDetails = AccountDetailsAll.slice(2, 4);
-      PolicyDetailsrecords = PolicyDetailsAll.slice(2, 4);
-      SummaryRecord = SummaryRecordAll.slice(2, 4);
-    }
+    const AccountDetails = executableRecordsAll.filter(r => r['Browser']?.toLowerCase() === browserName);
+    const PolicyDetailsrecords = AccountDetails.map(r => PolicyDetailsAll[r.index]);
+    const SummaryRecord = AccountDetails.map(r => SummaryRecordAll[r.index]);
 
     // Step 1: Login once
     await test.step('Login to AMSuite', async () => {
@@ -90,7 +87,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
       const Account = AccountDetails[i];
       const PDrecords = PolicyDetailsrecords[i];
       const summary = SummaryRecord[i];
-      const title = summary['TC_Title'];
+      const title = summary['TC_Title'] || `Record ${i + 1}`;
 
       acc_created = '##';
       submissionNumber = '##';
@@ -158,6 +155,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
           logger.info(`Account number: ${acc_created}`);
           logger.info('Policy Number to be generated later: ' + policy_number);
 
+          // Save result
           results.push({
             testCase: `${title}: ${i + 1} (${browserName})`,
             status: acc_created === '' ? 'FAIL' : 'PASS',

@@ -1,5 +1,6 @@
 import { test } from '../setup/page-setup';
 import * as path from 'path';
+import * as fs from 'fs';
 import { readExcelfile, writeTestResultsToExcel } from '../Utility/excel-utils';
 import { AccountPage } from '../pages/AccountCreationGPAPage';
 import { LoginPage } from '../pages/loginPage';
@@ -8,9 +9,10 @@ import { PAUSE_TIMEOUT } from '../Utility/timeout-constants';
 import { captureAndAttach, results } from '../testdata/testData';
 import logger from '../Utility/logger';
 import { getEnv } from '../helper/env/env';
-import * as fs from 'fs';
 
 getEnv();
+
+// Paths
 const excelPath = path.join(
   __dirname,
   '..',
@@ -24,66 +26,70 @@ const excelDir = path.join(
   'ExcelReports',
 );
 
-// Ensure folder exists
 if (!fs.existsSync(excelDir)) {
   fs.mkdirSync(excelDir, { recursive: true });
 }
 
-// Updated path for Excel result file
 const excelResultPath = path.join(excelDir, 'DWB-Result.xlsx');
 
+// Read Excel data
 const AccountDetails = readExcelfile(excelPath, 'Account_Creation');
 const PolicyDetailsrecords = readExcelfile(excelPath, 'Policy_Details');
 const SummaryRecord = readExcelfile(excelPath, 'Summary');
 
+// Filter only rows with Execution = Yes
+const executableRecords = AccountDetails.map((r, i) => ({
+  ...r,
+  index: i,
+})).filter((r) => r['Execution']?.toLowerCase() === 'yes');
+
+if (executableRecords.length === 0) {
+  logger.error('No test rows marked for execution in Excel.');
+}
+
+// Write results after all tests
 test.afterAll(async () => {
-  const now = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 4);
+  const now = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 8);
   const filename = `DwellingBasicGPA_${now}`;
   await writeTestResultsToExcel(excelResultPath, filename, results);
 });
-
-let acc_created: string = '##';
-let submissionNumber: string = '##';
-let policy_number: string = '##';
-let UWI_Description: string[] = [];
 
 test.describe('GPA DWB Policy Creation Test', () => {
   test('Login once and create GPA policies', async ({ page }, testInfo) => {
     test.setTimeout(1000 * 60 * 30); // 30 min
     page.setDefaultTimeout(1000 * 60 * 10); // 10 min
+
+    // Step 1: Login
     await test.step('Login to AMSuite', async () => {
       const LoginPageTest = new LoginPage(page);
-      let userName = process.env.USERNAME!;
-      let passWord = process.env.PASSWORD!;
       await LoginPageTest.navigateToLoginPage();
       await LoginPageTest.clickPolicyLoginLink();
-      await LoginPageTest.enterUsername(userName);
+      await LoginPageTest.enterUsername(process.env.USERNAME!);
       await LoginPageTest.clickNextButton();
-      await LoginPageTest.enterPassword(passWord);
+      await LoginPageTest.enterPassword(process.env.PASSWORD!);
       await LoginPageTest.clickLoginButton();
       await LoginPageTest.verifyLoginSuccess();
-      //await LoginPageTest.logInSuccesfully();
     });
 
-    // Step 2: Loop through 2 records
-    const maxRecords = 2;
-    for (let i = 0; i < maxRecords; i++) {
+    // Step 2: Loop through executable records
+    for (const record of executableRecords) {
+      const i = record.index;
       const Account = AccountDetails[i];
       const PDrecords = PolicyDetailsrecords[i];
       const summary = SummaryRecord[i];
-      const title = summary['TC_Title'];
+      const title = summary['TC_Title'] || `Record ${i + 1}`;
 
-      acc_created = '##';
-      submissionNumber = '##';
-      policy_number = '##';
-      UWI_Description = [];
+      let acc_created: string = '##';
+      let submissionNumber: string = '##';
+      let policy_number: string = '##';
+      let UWI_Description: string[] = [];
 
       await test.step(`Record ${i + 1} - ${title}`, async () => {
         try {
-          // Account creation
-          logger.info(`Starting test for record ${i + 1}: ${title}`);
           const accountPage = new AccountPage(page, testInfo);
           const policyDetailsPage = new PolicyDetailsPage(page, testInfo);
+
+          // Account creation
           await accountPage.navigateToGPA(page, testInfo);
           await accountPage.searchAccountDetails(
             page,
@@ -113,6 +119,8 @@ test.describe('GPA DWB Policy Creation Test', () => {
             Account['StreetAddress2'],
           );
           await accountPage.ClickonContinue();
+
+          // Policy details
           await policyDetailsPage.EnterProducercode(
             testInfo,
             PDrecords['ProducerCode'],
@@ -129,9 +137,11 @@ test.describe('GPA DWB Policy Creation Test', () => {
           );
           acc_created = await accountPage.getAccountNumberGenerated();
           submissionNumber = await accountPage.getSubmissionNumberGenerated();
+
           logger.info(`Submission number: ${submissionNumber}`);
           logger.info(`Account number: ${acc_created}`);
-          logger.info('Policy Number to be generated later: ' + policy_number);
+
+          // Save result
           results.push({
             testCase: `${title}: ${i + 1}`,
             status: acc_created === '' ? 'FAIL' : 'PASS',
