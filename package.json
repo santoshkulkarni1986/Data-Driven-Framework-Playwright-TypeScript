@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "eslint ./src --ext .ts,.tsx --fix && ts-node ./src/Utility/setupReports.ts && tsc --noEmit",
-    "test": "cross-env ENV=test npx playwright test ./tests GPA_Dwelling_Basic_seperated_parallel.spec.ts",
+    "test": "cross-env ENV=test npx playwright test",
     "format": "prettier --write './src/**/*.{ts,tsx,json,css,md}'",
     "coverage": "c8 report --reporter=text-lcov | coveralls",
     "coverage-html": "c8 report --reporter=html",
