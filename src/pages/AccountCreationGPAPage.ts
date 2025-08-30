@@ -116,6 +116,7 @@ export class AccountPage {
       const popupVisible = await isElementVisible(this.popupForHomePage);
       if (popupVisible) {
         logger.info("Popup detected on Home Page. Clicking 'Yes' button...");
+        await this.yesButtonInPopup().waitFor({ state: 'visible', timeout: 60000 });
         await this.yesButtonInPopup().click({ force: true });
         await page.waitForTimeout(5000);
         await captureAndAttach(
