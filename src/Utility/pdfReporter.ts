@@ -10,6 +10,7 @@ import * as path from 'path';
 import sizeOf from 'image-size';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts'; // npm install pdfmake
+import logger from './logger';
 
 pdfMake.vfs = pdfFonts.vfs;
 // ✅ Root-level FinalReports directory
@@ -51,11 +52,11 @@ class PDFReporter implements Reporter {
           fs.unlinkSync(entryPath);
         }
       }
-      console.log(
+      logger.info(
         '🧹 Cleared all contents inside "data" folder, but kept the folder itself.',
       );
     } else {
-      console.log('⚠️ "data" folder does not exist.');
+      logger.info('⚠️ "data" folder does not exist.');
     }
   }
 
@@ -85,11 +86,6 @@ class PDFReporter implements Reporter {
       layout: 'lightHorizontalLines',
       margin: [0, 10, 0, 10],
     });
-
-    const files = fs.readdirSync(screenshotDir);
-    let matchingScreenshots = files.filter(
-      (file) => file.startsWith('Step') || /\.(png|jpg|jpeg)$/i.test(file),
-    );
 
     //matchingScreenshots.sort();
 
@@ -141,7 +137,7 @@ class PDFReporter implements Reporter {
       },
     };
 
-    const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
       pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
         resolve(buffer);
       });
@@ -157,7 +153,7 @@ class PDFReporter implements Reporter {
       `${test.title.replace(/\s+/g, '_')}_${timestamp}.pdf`,
     );
     fs.writeFileSync(filePath, pdfBuffer);
-    console.log(`✅ PDF report created: ${filePath}`);
+    logger.info(`✅ PDF report created: ${filePath}`);
   }
 }
 

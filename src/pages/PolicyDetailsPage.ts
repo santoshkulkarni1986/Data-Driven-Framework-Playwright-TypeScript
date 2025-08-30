@@ -3,7 +3,6 @@ import { getLocator, getLocatorByRole } from '../Utility/locator-utils';
 import { click, fill, selectByText } from '../Utility/action-utils';
 import { captureAndAttach } from '../testdata/testData';
 import logger from '../Utility/logger';
-import { log } from 'console';
 
 export class PolicyDetailsPage {
   private page: Page;
@@ -19,57 +18,11 @@ export class PolicyDetailsPage {
   // ------------------
   private producerCode = () =>
     getLocator("(//input[@ng-model='producerCodeQuickSearch'])[1]");
-  private producerCodeNext = () =>
-    getLocator('[ng-click="submitCreateAccountForm(newAccountForm)"]');
   private searchProducerBtn = () =>
     getLocatorByRole('button', { name: 'Search Producer' }).first();
   private nextBtn = () => getLocatorByRole('button', { name: 'Next' });
   private productCode = () => getLocator('#ProductCode');
   private policyType = () => getLocator('#PolicyType');
-  private effectiveDate = () =>
-    getLocatorByRole('textbox', { name: 'MM/DD/YYYY' });
-  private yesButtonInsuranceScore = () =>
-    getLocator(
-      "//div[contains(@label, 'insurance score.')]/div//label[@title='Yes']",
-    );
-  private yesClaimHistoryProvider = () =>
-    getLocator(
-      "//div[contains(@label, 'claims history provider.')]/div//label[@title='Yes']",
-    );
-  private yesDisclaimerRead = () =>
-    getLocator(
-      "//div[contains(@label, 'Disclaimer has been read')]/div//label[@title='Yes']",
-    );
-  private noPaymentsforProperty = () =>
-    getLocator(
-      "//div[contains(@label, 'past due on mortgage payments')]//div[@title2='No']",
-    );
-  private noFraudOffenses = () =>
-    getLocator(
-      "//div[contains(@label, 'insurance-related offenses?')]//div[@title2='No']",
-    );
-  private nextButtoninPolicyDetails = () =>
-    getLocator("//button[@ng-click='goToNext()']");
-  private yesButtonApplicantMoved = () =>
-    getLocator(
-      "//div[contains(@label, 'Has the applicant moved in the last 60 days?')]//div[@title2='No']",
-    );
-  private addressLine1 = () =>
-    getLocator('[ng-model="address.addressLine1.value"]');
-  private addressLine2 = () =>
-    getLocator('[ng-model="address.addressLine2.value"]');
-  private attCareOf = () =>
-    getLocatorByRole('textbox', { name: 'Attention/Care Of' });
-  private city = () => getLocator('[ng-model="address.city.value"]');
-  private zipCode = () => getLocator('[ng-model="address.postalCode.value"]');
-  private stateDropdown = () =>
-    getLocator("//select[@placeholder='---Choose State---']");
-  private buttonContinue = () =>
-    getLocatorByRole('button', { name: 'Continue' });
-  private warningMsg = () =>
-    getLocator(
-      '//div[contains(., "The policy address is not a deliverable address according to the US Postal Service.")]',
-    );
   /**
    *
    * @param testInfo
@@ -86,18 +39,28 @@ export class PolicyDetailsPage {
       logger.info(`Entering Producer Code: ${codestr}`);
 
       await this.producerCode().waitFor({ state: 'visible', timeout: 5000 });
-      logger.info(`Scrolling to Producer Code field: ${this.producerCode().toString()}`);
+      logger.info(
+        `Scrolling to Producer Code field: ${this.producerCode().toString()}`,
+      );
       await this.producerCode().scrollIntoViewIfNeeded();
       logger.info(`Successfully scrolled to Producer Code field`);
-      logger.info(`clicking Producer Code field: ${this.producerCode().toString()}`);
+      logger.info(
+        `clicking Producer Code field: ${this.producerCode().toString()}`,
+      );
       await click(this.producerCode());
-      logger.info(`Successfully clicked Producer Code field: ${this.producerCode().toString()}`);
+      logger.info(
+        `Successfully clicked Producer Code field: ${this.producerCode().toString()}`,
+      );
       await this.producerCode().press('Home');
       logger.info(`Pressed 'Home' key in Producer Code field`);
       logger.info(`Filling Producer Code field with value: ${codestr}`);
       await fill(this.producerCode(), codestr);
-      logger.info(`Successfully filled Producer Code field with value: ${codestr}`);
-      logger.info(`Clicking Search Producer button: ${this.searchProducerBtn().toString()}`);
+      logger.info(
+        `Successfully filled Producer Code field with value: ${codestr}`,
+      );
+      logger.info(
+        `Clicking Search Producer button: ${this.searchProducerBtn().toString()}`,
+      );
       await this.searchProducerBtn().waitFor({
         state: 'visible',
         timeout: 5000,
@@ -109,7 +72,9 @@ export class PolicyDetailsPage {
       await captureAndAttach(page, testInfo, 'Enter Producer code');
       logger.info(`Clicking Next button`);
       await this.nextBtn().first().click({ force: true });
-      logger.info(`Clicked Next button successfully: ${this.nextBtn().toString()}`);
+      logger.info(
+        `Clicked Next button successfully: ${this.nextBtn().toString()}`,
+      );
       logger.info(`Producer code entered successfully: ${codestr}`);
     } catch (error) {
       logger.error(`Failed to enter Producer code: ${error}`);
@@ -135,7 +100,9 @@ export class PolicyDetailsPage {
       logger.info(`Selecting Product: ${product}, Policy Type: ${policyType}`);
 
       await this.productCode().scrollIntoViewIfNeeded();
-      logger.info(`Scrolling to Product Code dropdown: ${this.productCode().toString()}`);
+      logger.info(
+        `Scrolling to Product Code dropdown: ${this.productCode().toString()}`,
+      );
       await this.productCode().waitFor({ state: 'visible', timeout: 5000 });
       logger.info(`Clicked Product Code dropdown successfully`);
       await selectByText(this.productCode(), product);
@@ -152,7 +119,9 @@ export class PolicyDetailsPage {
       logger.info(`Clicking Next button`);
       await click(this.nextBtn());
 
-      logger.info(`Product and Policy Type selected successfully: ${product}, ${policyType}`);
+      logger.info(
+        `Product and Policy Type selected successfully: ${product}, ${policyType}`,
+      );
     } catch (error) {
       logger.error(`Failed to select Product/Policy Type: ${error}`);
       await captureAndAttach(
