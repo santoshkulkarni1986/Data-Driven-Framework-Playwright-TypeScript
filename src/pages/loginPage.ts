@@ -124,12 +124,12 @@ export class LoginPage {
       logger.info(`Start ${action}`);
       // 1️⃣ Verify the URL
       logger.info(`Verifying URL is: ${process.env.USERSUCCESS}`);
-      await expect(this.page).toHaveURL(expectedUrl, { timeout: 30000 });
+      await expect(this.page).toHaveURL(expectedUrl, { timeout: 60000 });
       logger.info('Successfully verified URL for login success.');
 
       // 2️⃣ Wait for the topFrame iframe to appear
       const topFrameLocator = this.page.locator('iframe[name="topFrame"]');
-      await topFrameLocator.waitFor({ state: 'attached', timeout: 30000 });
+      await topFrameLocator.waitFor({ state: 'attached', timeout: 60000 });
 
       // 3️⃣ Get iframe content
       const topFrame = await topFrameLocator.contentFrame();

@@ -108,6 +108,7 @@ export class AccountPage {
       logger.info('Navigating to GPA home page...');
       await gotoURL(AMSuite_GPAURL,{timeout: MAX_TIMEOUT});
       await captureAndAttach(page, testInfo, 'Navigate to GPA Home Page');
+      await page.waitForLoadState('load',{ timeout: MAX_TIMEOUT});
       const startQuote = await this.startNewQuote();
       await startQuote.waitFor({ state: 'visible', timeout: 60000 });
       logger.info('Start New Quote button is visible.');
@@ -503,7 +504,7 @@ export class AccountPage {
   public async getSubmissionNumberGenerated(): Promise<string> {
     try {
       await isElementVisible(this.submissionNumber(), {
-        timeout: STANDARD_TIMEOUT,
+        timeout: MAX_TIMEOUT,
       });
       const subNum =
         (await this.submissionNumber().textContent())?.trim() ?? '';
