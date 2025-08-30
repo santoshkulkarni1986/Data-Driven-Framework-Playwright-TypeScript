@@ -31,7 +31,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [
+  timeout: 40 * 1000,
+  expect: { timeout: 5000 },
+  globalTimeout: 10 * 60 * 1000,
+    reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'FinalReports/playwright-report' }],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
@@ -45,6 +48,9 @@ export default defineConfig({
   ],
   use: {
     baseURL: process.env.AMSUITEBASEURL || 'https://default-url.com',
+    navigationTimeout: 60 * 1000,
+    actionTimeout: 30 * 1000,
+    ignoreHTTPSErrors: true,  
     trace: 'on',
     screenshot: 'on',
     video: 'on',

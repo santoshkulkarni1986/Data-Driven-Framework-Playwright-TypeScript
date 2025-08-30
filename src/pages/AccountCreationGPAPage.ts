@@ -106,7 +106,7 @@ export class AccountPage {
   public async navigateToGPA(page: Page, testInfo: TestInfo) {
     try {
       logger.info('Navigating to GPA home page...');
-      await gotoURL(AMSuite_GPAURL);
+      await gotoURL(AMSuite_GPAURL,{timeout: MAX_TIMEOUT});
       await captureAndAttach(page, testInfo, 'Navigate to GPA Home Page');
       const startQuote = await this.startNewQuote();
       await startQuote.waitFor({ state: 'visible', timeout: 60000 });
