@@ -3,6 +3,7 @@ import { getLocator, getLocatorByRole } from '../Utility/locator-utils';
 import { click, fill, selectByText } from '../Utility/action-utils';
 import { captureAndAttach } from '../testdata/testData';
 import logger from '../Utility/logger';
+import { log } from 'console';
 
 export class PolicyDetailsPage {
   private page: Page;
@@ -90,7 +91,7 @@ export class PolicyDetailsPage {
       await this.producerCode().press('Home');
       await fill(this.producerCode(), codestr);
 
-      logger.info(`Clicking Search Producer button`);
+      logger.info(`Clicking Search Producer button: ${this.searchProducerBtn().toString()}`);
       await this.searchProducerBtn().waitFor({
         state: 'visible',
         timeout: 5000,
@@ -102,8 +103,9 @@ export class PolicyDetailsPage {
 
       logger.info(`Clicking Next button`);
       await this.nextBtn().first().click({ force: true });
+      logger.info(`Clicked Next button successfully: ${this.nextBtn().toString()}`);
 
-      logger.info(`Producer code entered successfully`);
+      logger.info(`Producer code entered successfully: ${codestr}`);
     } catch (error) {
       logger.error(`Failed to enter Producer code: ${error}`);
       await captureAndAttach(page, testInfo, 'Producer code entry failure');
@@ -128,8 +130,13 @@ export class PolicyDetailsPage {
       logger.info(`Selecting Product: ${product}, Policy Type: ${policyType}`);
 
       await this.productCode().scrollIntoViewIfNeeded();
+      logger.info(`Scrolling to Product Code dropdown: ${this.productCode().toString()}`);
+      await this.productCode().waitFor({ state: 'visible', timeout: 5000 });
+      logger.info(`Clicked Product Code dropdown successfully`);
       await selectByText(this.productCode(), product);
+      logger.info(`Successfully selected Product: ${product}`);
       await selectByText(this.policyType(), policyType);
+      logger.info(`Successfully selected Policy Type: ${policyType}`);
 
       await captureAndAttach(
         page,
@@ -140,7 +147,7 @@ export class PolicyDetailsPage {
       logger.info(`Clicking Next button`);
       await click(this.nextBtn());
 
-      logger.info(`Product and Policy Type selected successfully`);
+      logger.info(`Product and Policy Type selected successfully: ${product}, ${policyType}`);
     } catch (error) {
       logger.error(`Failed to select Product/Policy Type: ${error}`);
       await captureAndAttach(
