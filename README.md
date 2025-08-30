@@ -1,6 +1,6 @@
 # Rashmi-QA-AutomationSuite
 
-This project is an automated testing suite using Playwright and TypeScript for end-to-end testing of web applications.
+This project is an automated testing suite using Playwright and TypeScript for end-to-end testing of web applications using Data Driven Approach.
 
 ## Project Structure
 
@@ -48,7 +48,7 @@ This project is an automated testing suite using Playwright and TypeScript for e
 ### Generating Reports
 - Playwright HTML report:
   ```powershell
-  npx playwright show-report
+  npx monocart show-report FinalReports/monocart-report/index.html
   ```
 - Custom reports are available in the `FinalReports/` directory after test execution.
 
