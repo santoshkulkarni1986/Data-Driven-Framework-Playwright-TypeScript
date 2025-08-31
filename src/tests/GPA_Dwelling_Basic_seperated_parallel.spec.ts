@@ -17,7 +17,7 @@ const excelPath = path.join(
   __dirname,
   '..',
   'testdata',
-  'Dwelling_Basic_GPA_Issuance_Test_Generator_V3.1_new.xlsm',
+  'Dwelling_Basic_GPA_Issuance_Test_Generator_V3.1_new_data.xlsm',
 );
 
 const excelDir = path.join(
