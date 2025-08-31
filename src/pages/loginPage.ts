@@ -94,7 +94,7 @@ export class LoginPage {
     try {
       logger.info(`Start ${action}`);
       await this.passwordInput.fill(password);
-      logger.info('Password entered successfully.');
+      logger.info(`Successfully entered username: ${password}`);
     } catch (error) {
       logger.error(`Error ${action}: ${(error as Error).message}`);
       throw error;

@@ -26,6 +26,7 @@ import { isElementVisible } from '../Utility/element-utils';
 import fs from 'fs';
 import logger from '../Utility/logger';
 import { getPage } from '../Utility/page-utils';
+import { log } from 'console';
 
 export class AccountPage {
   private page: Page;
@@ -109,6 +110,7 @@ export class AccountPage {
     try {
       logger.info('Navigating to GPA home page...');
       await gotoURL(AMSuite_GPAURL, { timeout: MAX_TIMEOUT });
+      logger.info(`Navigated to URL: ${AMSuite_GPAURL}`);
       await captureAndAttach(page, testInfo, 'Navigate to GPA Home Page');
       await page.waitForLoadState('load', { timeout: MAX_TIMEOUT });
       const startQuote = await this.startNewQuote();

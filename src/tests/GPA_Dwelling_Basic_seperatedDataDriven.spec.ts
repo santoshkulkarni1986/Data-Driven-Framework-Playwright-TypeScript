@@ -5,7 +5,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { readExcelfile, writeTestResultsToExcel } from '../Utility/excel-utils';
 import { AccountPage } from '../pages/AccountCreationGPAPage';
-import { LoginPage } from '../pages/loginPage';
 import { PolicyDetailsPage } from '../pages/PolicyDetailsPage';
 import { PAUSE_TIMEOUT } from '../Utility/timeout-constants';
 import { captureAndAttach, results } from '../testdata/testData';
@@ -37,7 +36,7 @@ const AccountDetails = readExcelfile(excelPath, 'Account_Creation');
 const PolicyDetailsrecords = readExcelfile(excelPath, 'Policy_Details');
 const SummaryRecord = readExcelfile(excelPath, 'Summary');
 
-// Filter only rows with Execution = "yes" (case-insensitive & trimmed)
+// Filter only rows with Execution = "yes"
 const executableRecords = AccountDetails.map((r, i) => ({
   ...r,
   index: i,
@@ -57,7 +56,6 @@ test.afterAll(async () => {
 
 // Main test describe
 test.describe('GPA DWB Policy Creation Test', () => {
-  // Run one test per executable record
   for (const record of executableRecords) {
     const i = record.index;
     const Account = AccountDetails[i];
@@ -65,8 +63,10 @@ test.describe('GPA DWB Policy Creation Test', () => {
     const summary = SummaryRecord[i];
     const title = summary['TC_Title'] || `Record ${i + 1}`;
 
-    // Test will automatically run once per browser configured in playwright.config.ts
-    test(`${title} - Policy Creation`, async ({ page, browserName }, testInfo) => {
+    test(`${title} - Policy Creation`, async ({
+      page,
+      browserName,
+    }, testInfo) => {
       let acc_created = '##';
       let submissionNumber = '##';
       let policy_number = '##';
@@ -76,19 +76,9 @@ test.describe('GPA DWB Policy Creation Test', () => {
       page.setDefaultTimeout(1000 * 60 * 10); // 10 min
 
       try {
-        // Step 1: Login
-        await test.step('Login to AMSuite', async () => {
-          const loginPage = new LoginPage(page);
-          await loginPage.navigateToLoginPage();
-          await loginPage.clickPolicyLoginLink();
-          await loginPage.enterUsername(process.env.USERNAME!);
-          await loginPage.clickNextButton();
-          await loginPage.enterPassword(process.env.PASSWORD!);
-          await loginPage.clickLoginButton();
-          await loginPage.verifyLoginSuccess();
-        });
+        // ✅ No login step needed here – storageState already has logged-in session
 
-        // Step 2: Account Creation
+        // Step 1: Account Creation
         const accountPage = new AccountPage(page, testInfo);
         const policyDetailsPage = new PolicyDetailsPage(page, testInfo);
 
@@ -124,7 +114,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
           await accountPage.ClickonContinue();
         });
 
-        // Step 3: Policy Details
+        // Step 2: Policy Details
         await test.step('Enter Policy Details', async () => {
           await policyDetailsPage.EnterProducercode(
             testInfo,
