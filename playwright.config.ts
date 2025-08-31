@@ -5,6 +5,7 @@ import { getEnv } from './src/helper/env/env'; // adjust if needed
 
 // Load environment variables
 getEnv();
+//const pdfReporterPath = path.join(__dirname, 'dist/Utility/PdfReporter.js');
 
 // Ensure report folders exist
 const reportFolders = [
@@ -22,9 +23,10 @@ reportFolders.forEach((folder) => {
   }
 });
 
+
+
 export default defineConfig({
-  // ✅ Global setup runs compiled JS in GitHub Actions
-  globalSetup: path.resolve(__dirname, './dist/setup/global-setup.js'),
+globalSetup: path.resolve(__dirname, './dist/setup/global-setup.js'),
 
   testDir: './src/tests',
   fullyParallel: true,
@@ -34,35 +36,35 @@ export default defineConfig({
   timeout: 40 * 1000,
   expect: { timeout: 5000 },
   globalTimeout: 10 * 60 * 1000,
-
-  reporter: [
+    reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'FinalReports/playwright-report' }],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
     [
-      './dist/Utility/pdfReporter.js',
-      { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' },
+    './dist/Utility/pdfReporter.js',
+    { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' },
     ],
     ['monocart-reporter', { outputFile: './FinalReports/monocart-report/index.html' }],
     ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
-
   use: {
     baseURL: process.env.AMSUITEBASEURL || 'https://default-url.com',
-    storageState: path.resolve(__dirname, 'storageState.json'), // ✅ re-use session
     navigationTimeout: 60 * 1000,
     actionTimeout: 30 * 1000,
-    ignoreHTTPSErrors: true,
+    ignoreHTTPSErrors: true,  
     trace: 'on',
     screenshot: 'on',
     video: 'on',
   },
-
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], headless: true },
     },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'], headless: true },
+    }
   ],
 });
