@@ -1,3 +1,5 @@
+/**author : Rashmi HS */
+
 import { test } from '../setup/page-setup';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -35,24 +37,27 @@ const AccountDetails = readExcelfile(excelPath, 'Account_Creation');
 const PolicyDetailsrecords = readExcelfile(excelPath, 'Policy_Details');
 const SummaryRecord = readExcelfile(excelPath, 'Summary');
 
-// Filter only rows with Execution = Yes
+// Filter only rows with Execution = "yes" (case-insensitive & trimmed)
 const executableRecords = AccountDetails.map((r, i) => ({
   ...r,
   index: i,
-})).filter((r) => r['Execution']?.toLowerCase() === 'yes');
+})).filter((r) => r['Execution']?.trim().toLowerCase() === 'yes');
 
+logger.info(`Total executable records found: ${executableRecords.length}`);
 if (executableRecords.length === 0) {
   logger.error('No test rows marked for execution in Excel.');
 }
 
-// Write results after all
+// Write results after all tests
 test.afterAll(async () => {
   const now = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 8);
   const filename = `DwellingBasicGPA_${now}`;
   await writeTestResultsToExcel(excelResultPath, filename, results);
 });
 
+// Main test describe
 test.describe('GPA DWB Policy Creation Test', () => {
+  // Run one test per executable record
   for (const record of executableRecords) {
     const i = record.index;
     const Account = AccountDetails[i];
@@ -60,11 +65,11 @@ test.describe('GPA DWB Policy Creation Test', () => {
     const summary = SummaryRecord[i];
     const title = summary['TC_Title'] || `Record ${i + 1}`;
 
-    // Use the test title, browser will come from playwright.config.ts
-    test(`${title} - Policy Creation`, async ({ page }, testInfo) => {
-      let acc_created: string = '##';
-      let submissionNumber: string = '##';
-      let policy_number: string = '##';
+    // Test will automatically run once per browser configured in playwright.config.ts
+    test(`${title} - Policy Creation`, async ({ page, browserName }, testInfo) => {
+      let acc_created = '##';
+      let submissionNumber = '##';
+      let policy_number = '##';
       let UWI_Description: string[] = [];
 
       test.setTimeout(1000 * 60 * 30); // 30 min
@@ -73,14 +78,14 @@ test.describe('GPA DWB Policy Creation Test', () => {
       try {
         // Step 1: Login
         await test.step('Login to AMSuite', async () => {
-          const LoginPageTest = new LoginPage(page);
-          await LoginPageTest.navigateToLoginPage();
-          await LoginPageTest.clickPolicyLoginLink();
-          await LoginPageTest.enterUsername(process.env.USERNAME!);
-          await LoginPageTest.clickNextButton();
-          await LoginPageTest.enterPassword(process.env.PASSWORD!);
-          await LoginPageTest.clickLoginButton();
-          await LoginPageTest.verifyLoginSuccess();
+          const loginPage = new LoginPage(page);
+          await loginPage.navigateToLoginPage();
+          await loginPage.clickPolicyLoginLink();
+          await loginPage.enterUsername(process.env.USERNAME!);
+          await loginPage.clickNextButton();
+          await loginPage.enterPassword(process.env.PASSWORD!);
+          await loginPage.clickLoginButton();
+          await loginPage.verifyLoginSuccess();
         });
 
         // Step 2: Account Creation
@@ -137,13 +142,15 @@ test.describe('GPA DWB Policy Creation Test', () => {
           acc_created = await accountPage.getAccountNumberGenerated();
           submissionNumber = await accountPage.getSubmissionNumberGenerated();
 
-          logger.info(`Submission number: ${submissionNumber}`);
-          logger.info(`Account number: ${acc_created}`);
+          logger.info(
+            `[${browserName}] Submission number: ${submissionNumber}`,
+          );
+          logger.info(`[${browserName}] Account number: ${acc_created}`);
         });
 
         // Save result
         results.push({
-          testCase: `${title}: ${i + 1}`,
+          testCase: `${title} [${browserName}]`,
           status: acc_created === '' ? 'FAIL' : 'PASS',
           Account_number: acc_created,
           Submission_number: submissionNumber,
@@ -152,9 +159,12 @@ test.describe('GPA DWB Policy Creation Test', () => {
         });
       } catch (error) {
         await captureAndAttach(page, testInfo, 'Failure Image');
-        logger.error(`Test failed for ${Account['First_Name']}:`, error);
+        logger.error(
+          `Test failed for ${Account['First_Name']} [${browserName}]:`,
+          error,
+        );
         results.push({
-          testCase: `${title}: ${i + 1}`,
+          testCase: `${title} [${browserName}]`,
           status: `Failed: ${error instanceof Error ? error.message : String(error)}`,
           Account_number: acc_created,
           Submission_number: submissionNumber,

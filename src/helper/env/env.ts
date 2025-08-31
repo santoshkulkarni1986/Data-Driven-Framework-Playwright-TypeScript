@@ -1,7 +1,9 @@
-import * as dotenv from 'dotenv';
+/**author : Rashmi HS */
+
 import path from 'path';
 import logger from '../../Utility/logger';
-/**
+import dotenv from 'dotenv';
+/***
  * getting environment variables
  */
 export function getEnv() {
@@ -16,7 +18,7 @@ export function getEnv() {
     'src/helper/env',
     `.env.${environment}`,
   );
-  const result = dotenv.config({ path: envPath, override: true });
+  const result = dotenv.config({ path: envPath });
 
   if (result.error) {
     logger.info(`Failed to load ${envPath}`, result.error);

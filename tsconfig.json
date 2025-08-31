@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "nodenext",
-    "target": "ES2022", // A more modern target that works well with nodenext
-    "outDir": "dist",
-    "rootDir": "src",
-    "strict": true,
-    "moduleResolution": "nodenext",
-    "resolveJsonModule": true,
-    "skipLibCheck": true
+    "target": "ES2022",                     // Modern JS target
+    "module": "nodenext",                   // Works well with Node ESM
+    "rootDir": "src",                        // Source folder
+    "outDir": "dist",                        // Output folder
+    "strict": true,                          // Enable strict type checks
+    "esModuleInterop": true,                 // Import compatibility
+    "allowSyntheticDefaultImports": true,    // Allow default imports from non-ESM modules
+    "moduleResolution": "nodenext",          // Module resolution strategy
+    "resolveJsonModule": true,               // Import JSON files
+    "skipLibCheck": true,                    // Skip type check for node_modules
+    "types": ["node", "estree"],             // Include Node and estree type definitions
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
