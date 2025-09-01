@@ -33,6 +33,7 @@ This project is an automated testing suite using Playwright and TypeScript for e
    ```powershell
    npx playwright install
 4. Conver TS file to Js using below command to generate the reports in GitHub Actions
+   
       npx tsc --project tsconfig.json
 
 ### Running Tests
