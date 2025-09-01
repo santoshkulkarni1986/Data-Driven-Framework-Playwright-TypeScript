@@ -1,13 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-import { getEnv } from './src/helper/env/env'; // adjust if needed
+import { getEnv } from './src/helper/env/env';
 
-// Load environment variables
+// ✅ Load environment variables
 getEnv();
-//const pdfReporterPath = path.join(__dirname, 'dist/Utility/PdfReporter.js');
 
-// Ensure report folders exist
+// ✅ Ensure report folders exist
 const reportFolders = [
   'FinalReports/playwright-report',
   'FinalReports/reports/pdf',
@@ -23,10 +22,8 @@ reportFolders.forEach((folder) => {
   }
 });
 
-
-
 export default defineConfig({
-globalSetup: path.resolve(__dirname, './dist/setup/global-setup.js'),
+  globalSetup: path.resolve(__dirname, './dist/setup/global-setup.js'),
 
   testDir: './src/tests',
   fullyParallel: true,
@@ -36,35 +33,46 @@ globalSetup: path.resolve(__dirname, './dist/setup/global-setup.js'),
   timeout: 40 * 1000,
   expect: { timeout: 5000 },
   globalTimeout: 10 * 60 * 1000,
-    reporter: [
+
+  reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'FinalReports/playwright-report' }],
     ['junit', { outputFile: 'FinalReports/test-results/results.xml' }],
     ['@estruyf/github-actions-reporter'],
     [
-    './dist/Utility/pdfReporter.js',
-    { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' },
+      './dist/Utility/pdfReporter.js',
+      { outputFile: 'FinalReports/reports/pdf/playwright-Custom-report.pdf' },
     ],
     ['monocart-reporter', { outputFile: './FinalReports/monocart-report/index.html' }],
     ['json', { outputFile: 'FinalReports/test-results/results.json' }],
   ],
+
   use: {
     baseURL: process.env.AMSUITEBASEURL || 'https://default-url.com',
     navigationTimeout: 60 * 1000,
     actionTimeout: 30 * 1000,
-    ignoreHTTPSErrors: true,  
+    ignoreHTTPSErrors: true,
     trace: 'on',
     screenshot: 'on',
     video: 'on',
   },
+
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], headless: true },
+      use: {
+        ...devices['Desktop Chrome'],
+        headless: true,
+        storageState: path.resolve('storageState-chromium.json'), // ✅ chromium state
+      },
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'], headless: true },
-    }
+      use: {
+        ...devices['Desktop Firefox'],
+        headless: true,
+        storageState: path.resolve('storageState-firefox.json'), // ✅ firefox state
+      },
+    },
   ],
 });

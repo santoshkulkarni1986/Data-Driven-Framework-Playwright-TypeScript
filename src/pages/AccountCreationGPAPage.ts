@@ -26,7 +26,6 @@ import { isElementVisible } from '../Utility/element-utils';
 import fs from 'fs';
 import logger from '../Utility/logger';
 import { getPage } from '../Utility/page-utils';
-import { log } from 'console';
 
 export class AccountPage {
   private page: Page;
@@ -124,7 +123,12 @@ export class AccountPage {
           state: 'visible',
           timeout: 60000,
         });
+        logger.info("'Yes' button is visible. Clicking it now.");
         await this.yesButtonInPopup().click({ force: true });
+        logger.info(
+          `Yes button clicked: ${this.yesButtonInPopup().toString()}`,
+        );
+
         await page.waitForTimeout(5000);
         await captureAndAttach(
           page,

@@ -1,36 +1,53 @@
-// global-setup.ts
-import { chromium, FullConfig } from '@playwright/test';
+import { chromium, firefox, FullConfig } from '@playwright/test';
 import { LoginPage } from '../pages/loginPage';
 import * as path from 'path';
 import { getEnv } from '../helper/env/env';
 import logger from '../Utility/logger';
 
-// ✅ Actually call the getEnv function
-getEnv();
+getEnv(); // ✅ Load environment variables
 
 async function globalSetup(config: FullConfig) {
-  // Check if env variables are loaded
+  const projects = config.projects.map((p) => p.name.toLowerCase());
 
-  const browser = await chromium.launch();
-  const context = await browser.newContext();
-  const page = await context.newPage();
-  const loginPage = new LoginPage(page);
+  for (const browserName of ['chromium', 'firefox']) {
+    if (projects.includes(browserName)) {
+      const browserType = browserName === 'chromium' ? chromium : firefox;
+      const browser = await browserType.launch();
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      const loginPage = new LoginPage(page);
 
-  await loginPage.navigateToLoginPage();
-  //  await loginPage.clickPolicyLoginLink();
-  await loginPage.enterUsername(process.env.USERNAME || 'autotester');
-  logger.info(`Using username: ${process.env.USERNAME }`);
-  await loginPage.clickNextButton();
-  await loginPage.enterPassword(process.env.PASSWORD || 'amigp@ss1');
-  logger.info(`Using password: ${process.env.PASSWORD }`);
-  await loginPage.clickLoginButton();
-  await loginPage.verifyLoginSuccess();
+      logger.info(`[${browserName}] Navigating to login page...`);
+      await loginPage.navigateToLoginPage();
 
-  // Save storage state in project root
-  const storagePath = path.resolve(process.cwd(), 'storageState.json');
-  await context.storageState({ path: storagePath });
+      // 🔑 Read creds from env
+      const username = process.env.USERNAME || 'autotester';
+      const password = process.env.PASSWORD || 'amigp@ss1';
 
-  await browser.close();
+      logger.info(`[${browserName}] Entering username: ${username}`);
+      await loginPage.enterUsername('autotester');
+
+      await loginPage.clickNextButton();
+
+      logger.info(`[${browserName}] Entering password: [HIDDEN]`);
+      await loginPage.enterPassword(password);
+
+      await loginPage.clickLoginButton();
+
+      await loginPage.verifyLoginSuccess();
+      logger.info(`[${browserName}] Login successful`);
+
+      // Save storage state separately per browser
+      const storagePath = path.resolve(
+        process.cwd(),
+        `storageState-${browserName}.json`,
+      );
+      await context.storageState({ path: storagePath });
+      logger.info(`[${browserName}] Storage state saved at ${storagePath}`);
+
+      await browser.close();
+    }
+  }
 }
 
 export default globalSetup;

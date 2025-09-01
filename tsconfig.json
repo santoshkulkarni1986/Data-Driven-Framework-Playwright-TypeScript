@@ -10,7 +10,8 @@
     "moduleResolution": "nodenext",          // Module resolution strategy
     "resolveJsonModule": true,               // Import JSON files
     "skipLibCheck": true,                    // Skip type check for node_modules
-    "types": ["node", "estree"],             // Include Node and estree type definitions
+    "types": ["node", "estree"],   
+    "typeRoots": ["./src/types", "./node_modules/@types"],          // Include Node and estree type definitions
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*.ts"],
