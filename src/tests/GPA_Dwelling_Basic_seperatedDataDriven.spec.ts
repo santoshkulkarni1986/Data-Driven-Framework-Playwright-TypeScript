@@ -94,7 +94,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
           );
         });
 
-        await test.step('Click Continue as New Customer', async () => {
+        await test.step('Click as New Customer', async () => {
           await accountPage.ClickonContinueasNewCustomer(page, testInfo);
         });
 
@@ -111,7 +111,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
           );
         });
 
-        await test.step('Enter Mailing Address', async () => {
+        await test.step('Enter Mailing Address Details', async () => {
           await accountPage.enterMailingAddress(
             page,
             testInfo,
@@ -121,12 +121,12 @@ test.describe('GPA DWB Policy Creation Test', () => {
           );
         });
 
-        await test.step('Click Continue after Mailing Address', async () => {
+        await test.step('Click Continue After Entering Mailing Address', async () => {
           await accountPage.ClickonContinue();
         });
 
         // 🔹 Step 2: Policy Details
-        await test.step('Enter Producer Code', async () => {
+        await test.step('Enter Producer Code Details', async () => {
           await policyDetailsPage.EnterProducercode(
             testInfo,
             PDrecords['ProducerCode'],
@@ -134,11 +134,11 @@ test.describe('GPA DWB Policy Creation Test', () => {
           );
         });
 
-        await test.step('Get Initial Account Number', async () => {
+        await test.step('Get Initial Account Number Generated', async () => {
           acc_created = await accountPage.getAccountNumberGenerated();
         });
 
-        await test.step('Select Product Type', async () => {
+        await test.step('Select Product Type From Policy Details', async () => {
           await policyDetailsPage.selectProductType(
             PDrecords['Product'],
             PDrecords['ProductType'],
@@ -147,7 +147,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
           );
         });
 
-        await test.step('Get Final Account & Submission Numbers', async () => {
+        await test.step('Get Final Account & Submission Numbers From Policy', async () => {
           acc_created = await accountPage.getAccountNumberGenerated();
           submissionNumber = await accountPage.getSubmissionNumberGenerated();
 
