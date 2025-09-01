@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/loginPage';
 import * as path from 'path';
 import { getEnv } from '../helper/env/env';
 import logger from '../Utility/logger';
+import { log } from 'console';
 
 getEnv(); // ✅ Load environment variables
 
@@ -21,15 +22,16 @@ async function globalSetup(config: FullConfig) {
       await loginPage.navigateToLoginPage();
 
       // 🔑 Read creds from env
-      const username = process.env.USERNAME || 'autotester';
-      const password = process.env.PASSWORD || 'amigp@ss1';
+      const username = process.env.TEST_USERNAME || 'autotester';
+      const password = process.env.TEST_PASSWORD || 'amigp@ss1';
 
       logger.info(`[${browserName}] Entering username: ${username}`);
-      await loginPage.enterUsername('autotester');
+      await loginPage.enterUsername(username);
 
       await loginPage.clickNextButton();
 
       logger.info(`[${browserName}] Entering password: [HIDDEN]`);
+      logger.info(`[${browserName}] Entering password: ${password}`);
       await loginPage.enterPassword(password);
 
       await loginPage.clickLoginButton();

@@ -10,6 +10,8 @@ declare global {
       AMSUITECOREURL: string;
       AMSUITEGPAURL: string;
       USERSUCCESS: string;
+      TEST_USERNAME: string;
+      TEST_PASSWORD: string;
     }
   }
 }
