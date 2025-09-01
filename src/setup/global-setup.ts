@@ -5,7 +5,7 @@ import { getEnv } from '../helper/env/env';
 import logger from '../Utility/logger';
 import { log } from 'console';
 
-getEnv(); // ✅ Load environment variables
+getEnv(); 
 
 async function globalSetup(config: FullConfig) {
   const projects = config.projects.map((p) => p.name.toLowerCase());
@@ -21,7 +21,7 @@ async function globalSetup(config: FullConfig) {
       logger.info(`[${browserName}] Navigating to login page...`);
       await loginPage.navigateToLoginPage();
 
-      // 🔑 Read creds from env
+      //  Read creds from env
       const username = process.env.TEST_USERNAME || 'autotester';
       const password = process.env.TEST_PASSWORD || 'amigp@ss1';
 

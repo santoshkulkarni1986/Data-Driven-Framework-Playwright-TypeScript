@@ -61,11 +61,14 @@ class PDFReporter implements Reporter {
   }
 
   async onTestEnd(test: TestCase, result: TestResult) {
+    const browserName = test.parent.project()?.name; // works fine at runtime
+
     const content: any[] = [
       { text: '📄 Playwright Custom Report', style: 'header' },
       { text: `Base URL: ${this.baseURL}`, margin: [0, 10, 0, 10] },
       { text: `Test Case: ${test.title}`, style: 'subheader' },
       { text: `Overall Status: ${result.status}`, margin: [0, 0, 0, 10] },
+      { text: `Execution Browser: ${browserName}`, margin: [0, 0, 0, 10] },
     ];
 
     const tableBody = [
