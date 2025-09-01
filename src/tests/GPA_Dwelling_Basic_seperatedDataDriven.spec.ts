@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import { readExcelfile, writeTestResultsToExcel } from '../Utility/excel-utils';
 import { AccountPage } from '../pages/AccountCreationGPAPage';
 import { PolicyDetailsPage } from '../pages/PolicyDetailsPage';
-import { PAUSE_TIMEOUT } from '../Utility/timeout-constants';
 import { captureAndAttach, results } from '../testdata/testData';
 import logger from '../Utility/logger';
 import { getEnv } from '../helper/env/env';
@@ -26,9 +25,7 @@ const excelDir = path.join(
   'reports',
   'ExcelReports',
 );
-
 if (!fs.existsSync(excelDir)) fs.mkdirSync(excelDir, { recursive: true });
-
 const excelResultPath = path.join(excelDir, 'DWB-Result.xlsx');
 
 // Read Excel data
@@ -52,6 +49,7 @@ test.afterAll(async () => {
   const now = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 8);
   const filename = `DwellingBasicGPA_${now}`;
   await writeTestResultsToExcel(excelResultPath, filename, results);
+  logger.info(`Excel results written to ${excelResultPath}`);
 });
 
 // Main test describe
@@ -75,15 +73,16 @@ test.describe('GPA DWB Policy Creation Test', () => {
       test.setTimeout(1000 * 60 * 30); // 30 min
       page.setDefaultTimeout(1000 * 60 * 10); // 10 min
 
+      const accountPage = new AccountPage(page, testInfo);
+      const policyDetailsPage = new PolicyDetailsPage(page, testInfo);
+
       try {
-        // ✅ No login step needed here – storageState already has logged-in session
-
-        // Step 1: Account Creation
-        const accountPage = new AccountPage(page, testInfo);
-        const policyDetailsPage = new PolicyDetailsPage(page, testInfo);
-
-        await test.step('Create Account', async () => {
+        // 🔹 Step 1: Account Creation
+        await test.step('Navigate to GPA Page', async () => {
           await accountPage.navigateToGPA(page, testInfo);
+        });
+
+        await test.step('Search Account Details', async () => {
           await accountPage.searchAccountDetails(
             page,
             testInfo,
@@ -93,7 +92,13 @@ test.describe('GPA DWB Policy Creation Test', () => {
             Account['ZipCode'],
             Account['State'],
           );
+        });
+
+        await test.step('Click Continue as New Customer', async () => {
           await accountPage.ClickonContinueasNewCustomer(page, testInfo);
+        });
+
+        await test.step('Enter Account Details', async () => {
           await accountPage.enterAccountDetails(
             page,
             testInfo,
@@ -104,6 +109,9 @@ test.describe('GPA DWB Policy Creation Test', () => {
             Account['SSN'],
             Account['Customer_Suffix'],
           );
+        });
+
+        await test.step('Enter Mailing Address', async () => {
           await accountPage.enterMailingAddress(
             page,
             testInfo,
@@ -111,24 +119,35 @@ test.describe('GPA DWB Policy Creation Test', () => {
             Account['StreetAddress1'],
             Account['StreetAddress2'],
           );
+        });
+
+        await test.step('Click Continue after Mailing Address', async () => {
           await accountPage.ClickonContinue();
         });
 
-        // Step 2: Policy Details
-        await test.step('Enter Policy Details', async () => {
+        // 🔹 Step 2: Policy Details
+        await test.step('Enter Producer Code', async () => {
           await policyDetailsPage.EnterProducercode(
             testInfo,
             PDrecords['ProducerCode'],
             page,
           );
-          await page.waitForTimeout(PAUSE_TIMEOUT);
+        });
+
+        await test.step('Get Initial Account Number', async () => {
           acc_created = await accountPage.getAccountNumberGenerated();
+        });
+
+        await test.step('Select Product Type', async () => {
           await policyDetailsPage.selectProductType(
             PDrecords['Product'],
             PDrecords['ProductType'],
             page,
             testInfo,
           );
+        });
+
+        await test.step('Get Final Account & Submission Numbers', async () => {
           acc_created = await accountPage.getAccountNumberGenerated();
           submissionNumber = await accountPage.getSubmissionNumberGenerated();
 
@@ -138,7 +157,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
           logger.info(`[${browserName}] Account number: ${acc_created}`);
         });
 
-        // Save result
+        // 🔹 Save result for this execution
         results.push({
           testCase: `${title} [${browserName}]`,
           status: acc_created === '' ? 'FAIL' : 'PASS',
@@ -153,6 +172,8 @@ test.describe('GPA DWB Policy Creation Test', () => {
           `Test failed for ${Account['First_Name']} [${browserName}]:`,
           error,
         );
+
+        // 🔹 Save failed result
         results.push({
           testCase: `${title} [${browserName}]`,
           status: `Failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -161,6 +182,7 @@ test.describe('GPA DWB Policy Creation Test', () => {
           Policy_number: policy_number,
           UWIDescription: UWI_Description,
         });
+
         test.fail();
       }
     });
