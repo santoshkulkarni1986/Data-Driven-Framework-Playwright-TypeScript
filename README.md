@@ -12,6 +12,7 @@ This project is an automated testing suite using Playwright and TypeScript for e
 - `playwright.config.ts` - Playwright configuration
 - `package.json` - Project dependencies and scripts
 - `tsconfig.json` - TypeScript configuration
+- 
 
 ## Getting Started
 
