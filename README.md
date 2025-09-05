@@ -52,7 +52,7 @@ This project is an automated testing suite using Playwright and TypeScript for e
   ```powershell
   npx monocart show-report FinalReports/monocart-report/index.html
   ```
-- Custom reports are available in the `FinalReports/` directory after test execution.
+- Custom reports are available in the `FinalReports/` directory after the test execution.
 
 ### Project Scripts
 - Add custom scripts in `package.json` as needed for your workflow.
