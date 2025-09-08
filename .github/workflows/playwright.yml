@@ -93,3 +93,6 @@ jobs:
           name: playwright-test-results with Trace and video, screenshots
           path: test-results/
           retention-days: 30
+      - name: Send Testdino report
+        run: |
+            npx --yes tdpw ./FinalReports/playwright-report/ --token="trx_production_80db6cdfa19aa3efc90632a4c5b1b22ad0f0e75dc2a39055acf9cb5ed8ad1365" --upload-html
