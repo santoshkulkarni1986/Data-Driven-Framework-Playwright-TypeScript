@@ -17,7 +17,7 @@
     "automation",
     "page-object-model"
   ],
-  "author": "Rashmi QA Lead",
+  "author": "Santosh QA Lead",
   "license": "ISC",
   "description": "Playwright Framework with Page Object Model and Word Reporter, PDF Reporter, and HTML Reporter",
   "devDependencies": {
