@@ -27,7 +27,7 @@ export default defineConfig({
   testDir: './src/tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 4 : 4,
+  retries: process.env.CI ? 2 : 4,
   workers: process.env.CI ? 4 : 4,
 
   // Adjusted timeouts for long-running tests
